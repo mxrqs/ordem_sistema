@@ -20,6 +20,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import { toast } from "sonner";
@@ -107,6 +108,7 @@ export default function AdminOrders() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
   const [uploadingOrderId, setUploadingOrderId] = useState<number | null>(null);
+  const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const utils = trpc.useUtils();
@@ -128,6 +130,16 @@ export default function AdminOrders() {
     },
     onError: () => {
       toast.error("Erro ao enviar PDF");
+    },
+  });
+  const deleteOrderMutation = trpc.orders.delete.useMutation({
+    onSuccess: () => {
+      utils.orders.all.invalidate();
+      setDeleteConfirmOrderId(null);
+      toast.success("Solicitacao deletada com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao deletar solicitacao");
     },
   });
 
@@ -173,6 +185,10 @@ export default function AdminOrders() {
       console.error("Error uploading PDF:", error);
       setUploadingOrderId(null);
     }
+  };
+
+  const handleDeleteOrder = async (orderId: number) => {
+    await deleteOrderMutation.mutateAsync({ orderId });
   };
 
   const getStatusColor = (status: string) => {
@@ -451,6 +467,29 @@ export default function AdminOrders() {
                           </a>
                         </>
                       )}
+
+                      {/* Delete Button */}
+                      <div className="ml-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDeleteConfirmOrderId(order.id)}
+                          disabled={deleteOrderMutation.isPending}
+                          className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        >
+                          {deleteOrderMutation.isPending && deleteConfirmOrderId === order.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Deletando...
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4" />
+                              Deletar
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -460,10 +499,44 @@ export default function AdminOrders() {
             <div className="text-center py-16">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-muted-foreground text-lg">
-                Nenhuma {activeTab === "OS" ? "Ordem de Serviço" : "Ordem de Compra"} encontrada
+                Nenhuma {activeTab === "OS" ? "Ordem de Servico" : "Ordem de Compra"} encontrada
               </p>
             </div>
           )}
+
+          {/* Delete Confirmation Modal */}
+          {deleteConfirmOrderId !== null && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <Card className="bg-white rounded-lg p-6 max-w-sm w-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground">Deletar Solicitacao</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Tem certeza que deseja deletar esta solicitacao? Esta acao nao pode ser desfeita.
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteConfirmOrderId(null)}
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={() => handleDeleteOrder(deleteConfirmOrderId)}
+                    disabled={deleteOrderMutation.isPending}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {deleteOrderMutation.isPending ? "Deletando..." : "Deletar"}
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
+
         </div>
       </div>
     </MainLayout>

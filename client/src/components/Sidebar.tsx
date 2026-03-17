@@ -47,11 +47,13 @@ export default function Sidebar() {
         {/* Logo Section */}
         <div className="p-6 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg">
-              OC
-            </div>
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/ChatGPTImageMar17,2026,08_24_24PM_1edec77f.png"
+              alt="Controle Manutenção"
+              className="w-10 h-10 rounded-lg object-cover"
+            />
             <div>
-              <h1 className="text-lg font-bold text-foreground">Order Control</h1>
+              <h1 className="text-lg font-bold text-foreground">Controle Manutenção</h1>
               <p className="text-xs text-muted-foreground">Solicitações e checklist</p>
             </div>
           </div>

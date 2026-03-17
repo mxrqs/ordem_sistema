@@ -45,6 +45,13 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
     title: "",
     description: "",
     totalValue: "",
+    fornecedorNome: "",
+    fornecedorCNPJ: "",
+    formaPagamento: "",
+    banco: "",
+    agencia: "",
+    conta: "",
+    titularidade: "",
   });
 
   const handleTypeSelect = (type: "OS" | "OC") => {
@@ -93,7 +100,18 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
       if (step === 3 && images.length === 0) { toast.error("Envie pelo menos uma foto"); return; }
       if (step === 4 && !formData.km) { toast.error("Informe o KM/Horímetro"); return; }
       if (step === 5 && !formData.informe) { toast.error("Preencha o informe técnico"); return; }
-      if (step === 6 && !formData.orcamento && !budgetFile) { toast.error("Envie o orçamento"); return; }
+      if (step === 6 && formData.type === "OC") {
+        if (!formData.orcamento && !budgetFile) { toast.error("Envie o orçamento"); return; }
+        if (!formData.fornecedorNome) { toast.error("Informe o nome do fornecedor"); return; }
+        if (!formData.fornecedorCNPJ) { toast.error("Informe o CNPJ"); return; }
+        if (!formData.formaPagamento) { toast.error("Selecione a forma de pagamento"); return; }
+        if (formData.formaPagamento === "transferencia") {
+          if (!formData.banco) { toast.error("Informe o banco"); return; }
+          if (!formData.agencia) { toast.error("Informe a agência"); return; }
+          if (!formData.conta) { toast.error("Informe a conta"); return; }
+          if (!formData.titularidade) { toast.error("Informe a titularidade"); return; }
+        }
+      }
     }
     setStep(step + 1);
   };
@@ -165,7 +183,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
     { title: "Fotos", desc: "Envie fotos/evidências" },
     { title: "KM/Horímetro", desc: "Informe a quilometragem" },
     { title: "Informe Técnico", desc: "Descrição técnica" },
-    { title: "Orçamento", desc: "Envie o orçamento" },
+    { title: "Pagamento", desc: "Informações de pagamento do fornecedor" },
     { title: "Resumo", desc: "Revise e confirme sua solicitação" },
   ];
 
@@ -438,7 +456,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           </div>
         )}
 
-        {/* OS Step 6: Informe | OC Step 6: Orçamento */}
+        {/* OS Step 6: Informe | OC Step 6: Pagamento */}
         {step === 6 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
@@ -452,41 +470,140 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                 />
               </label>
             ) : (
-              <div className="space-y-4">
-                <label className="block">
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Valor Total do Orçamento</span>
-                  <input
-                    type="text"
-                    value={formData.totalValue}
-                    onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    placeholder="R$ 0,00"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Descrição do Orçamento</span>
-                  <textarea
-                    value={formData.orcamento}
-                    onChange={(e) => setFormData({ ...formData, orcamento: e.target.value })}
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-h-[100px] resize-none"
-                    placeholder="Descreva os itens do orçamento ou cole o texto aqui..."
-                  />
-                </label>
+              <div className="space-y-6">
+                {/* Orçamento Section */}
+                <div className="pb-6 border-b border-border">
+                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <span>💰 Informações do Orçamento</span>
+                  </h3>
+                  <div className="space-y-4">
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground mb-2 block">Valor Total do Orçamento</span>
+                      <input
+                        type="text"
+                        value={formData.totalValue}
+                        onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        placeholder="R$ 0,00"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground mb-2 block">Descrição do Orçamento</span>
+                      <textarea
+                        value={formData.orcamento}
+                        onChange={(e) => setFormData({ ...formData, orcamento: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-h-[100px] resize-none"
+                        placeholder="Descreva os itens do orçamento ou cole o texto aqui..."
+                      />
+                    </label>
+                    <div>
+                      <span className="text-sm font-semibold text-foreground mb-2 block">Ou envie o arquivo do orçamento</span>
+                      <label className="border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={handleBudgetUpload}
+                          className="hidden"
+                        />
+                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                        <span className="text-sm text-foreground">
+                          {budgetFile ? budgetFile.name : "Clique para enviar"}
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-1">PDF ou imagem</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Supplier Payment Information Section */}
                 <div>
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Ou envie o arquivo do orçamento</span>
-                  <label className="border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={handleBudgetUpload}
-                      className="hidden"
-                    />
-                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                    <span className="text-sm text-foreground">
-                      {budgetFile ? budgetFile.name : "Clique para enviar"}
-                    </span>
-                    <span className="text-xs text-muted-foreground mt-1">PDF ou imagem</span>
-                  </label>
+                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <span>💳 Informações de Pagamento do Fornecedor</span>
+                  </h3>
+                  <div className="space-y-4">
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground mb-2 block">🏢 Nome da Empresa ou Prestador *</span>
+                      <input
+                        type="text"
+                        value={formData.fornecedorNome}
+                        onChange={(e) => setFormData({ ...formData, fornecedorNome: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        placeholder="Nome completo da empresa"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground mb-2 block">🪪 CNPJ *</span>
+                      <input
+                        type="text"
+                        value={formData.fornecedorCNPJ}
+                        onChange={(e) => setFormData({ ...formData, fornecedorCNPJ: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        placeholder="XX.XXX.XXX/0001-XX"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground mb-2 block">💳 Forma de Pagamento *</span>
+                      <select
+                        value={formData.formaPagamento}
+                        onChange={(e) => setFormData({ ...formData, formaPagamento: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      >
+                        <option value="">Selecione uma opção</option>
+                        <option value="boleto">Boleto</option>
+                        <option value="transferencia">Transferência Bancária</option>
+                        <option value="cartao">Cartão de Crédito</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cheque">Cheque</option>
+                      </select>
+                    </label>
+
+                    {/* Conditional Fields for Bank Transfer */}
+                    {formData.formaPagamento === "transferencia" && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-4">
+                        <p className="text-sm text-blue-900 font-semibold">Dados Bancários para Transferência</p>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-foreground mb-2 block">🏦 Banco *</span>
+                          <input
+                            type="text"
+                            value={formData.banco}
+                            onChange={(e) => setFormData({ ...formData, banco: e.target.value })}
+                            className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Ex: Banco do Brasil, Caixa, etc."
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-foreground mb-2 block">🏛️ Agência *</span>
+                          <input
+                            type="text"
+                            value={formData.agencia}
+                            onChange={(e) => setFormData({ ...formData, agencia: e.target.value })}
+                            className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Número da agência"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-foreground mb-2 block">💰 Conta *</span>
+                          <input
+                            type="text"
+                            value={formData.conta}
+                            onChange={(e) => setFormData({ ...formData, conta: e.target.value })}
+                            className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Número da conta"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-foreground mb-2 block">👤 Titularidade *</span>
+                          <input
+                            type="text"
+                            value={formData.titularidade}
+                            onChange={(e) => setFormData({ ...formData, titularidade: e.target.value })}
+                            className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Nome do titular da conta"
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -544,6 +661,25 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                 <div className="border-t border-border pt-4">
                   <span className="text-xs text-muted-foreground uppercase tracking-wider">Orçamento</span>
                   <p className="text-foreground mt-1">{formData.orcamento}</p>
+                </div>
+              )}
+
+              {formData.type === "OC" && (
+                <div className="border-t border-border pt-4">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Informações de Pagamento</span>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="font-semibold">Fornecedor:</span> {formData.fornecedorNome}</p>
+                    <p><span className="font-semibold">CNPJ:</span> {formData.fornecedorCNPJ}</p>
+                    <p><span className="font-semibold">Forma de Pagamento:</span> {formData.formaPagamento}</p>
+                    {formData.formaPagamento === "transferencia" && (
+                      <>
+                        <p><span className="font-semibold">Banco:</span> {formData.banco}</p>
+                        <p><span className="font-semibold">Agência:</span> {formData.agencia}</p>
+                        <p><span className="font-semibold">Conta:</span> {formData.conta}</p>
+                        <p><span className="font-semibold">Titularidade:</span> {formData.titularidade}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
 

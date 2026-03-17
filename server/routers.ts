@@ -253,6 +253,54 @@ export const appRouter = router({
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to upload PDF" });
         }
       }),
+
+    // Delete order (admin only)
+    delete: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          // Check if order exists
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const orderData = orderResult[0];
+
+          // Delete associated photos (cascade)
+          await db.delete(orderPhotos).where(eq(orderPhotos.orderId, input.orderId));
+
+          // Delete associated order items (cascade)
+          await db.delete(orderItems).where(eq(orderItems.orderId, input.orderId));
+
+          // Delete the order
+          await db.delete(orders).where(eq(orders.id, input.orderId));
+
+          // Send email notification about deletion
+          const userResult = await db.select().from(users).where(eq(users.id, orderData.userId)).limit(1);
+          if (userResult.length > 0) {
+            const user = userResult[0];
+            if (user.email) {
+              const message = `Sua solicitacao "${orderData.title}" foi deletada pelo administrador.`;
+              await sendEmailNotification(user.email, `Solicitacao Deletada: ${orderData.title}`, message);
+            }
+          }
+
+          return { success: true };
+        } catch (error) {
+          console.error("Error deleting order:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to delete order" });
+        }
+      }),
   }),
 
   checklists: router({

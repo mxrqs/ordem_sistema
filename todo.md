@@ -130,3 +130,29 @@
 - [ ] Criar aba de Relatórios com download de OS em PDF/Excel
 - [ ] Criar aba de Relatórios com download de OC em PDF/Excel
 - [ ] Testar importação e dados reais no sistema
+
+
+## Alterações Solicitadas - Sprint 2
+
+### Alteração 1 - Branding
+- [x] Renomear sistema de "Order Control" para "Controle Manutenção"
+- [x] Fazer upload da logo fornecida para S3
+- [x] Exibir logo no topo do sidebar/header
+- [x] Atualizar VITE_APP_TITLE com novo nome
+
+### Alteração 2 - Formulário OC Passo 6
+- [x] Adicionar seção "Informações de Pagamento do Fornecedor" no passo 6 do FormOC
+- [x] Adicionar campo obrigatório: Nome da empresa ou prestador
+- [x] Adicionar campo obrigatório: CNPJ
+- [x] Adicionar campo obrigatório: Forma de pagamento (dropdown)
+- [x] Implementar regra condicional: Se transferência, exibir campos adicionais
+- [x] Adicionar campos condicionais: Banco, Agência, Conta, Titularidade
+- [ ] Atualizar schema do banco para armazenar dados de pagamento
+- [x] Testar validação e fluxo condicional
+
+### Alteração 3 - Exclusão de Solicitações
+- [x] Adicionar mutation tRPC para deletar ordem (admin only)
+- [x] Adicionar coluna de ações na tabela AdminOrders com botão de exclusão
+- [x] Implementar modal de confirmação antes de deletar
+- [x] Testar permissões e segurança
+- [x] Verificar cascata de deleção (fotos, PDFs)
