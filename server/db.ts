@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, orders, checklists } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -87,6 +87,69 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getOrdersByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orders).where(eq(orders.userId, userId));
+}
+
+export async function getOrderById(orderId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllOrders() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orders);
+}
+
+export async function getChecklistsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(checklists).where(eq(checklists.userId, userId));
+}
+
+export async function getOrderStats() {
+  const db = await getDb();
+  if (!db) return { totalOrders: 0, byMonth: [], topUser: null };
+  
+  const allOrders = await db.select().from(orders);
+  const totalOrders = allOrders.length;
+  
+  // Group by month
+  const byMonth: Record<string, number> = {};
+  allOrders.forEach(order => {
+    const month = new Date(order.createdAt).toISOString().slice(0, 7);
+    byMonth[month] = (byMonth[month] || 0) + 1;
+  });
+  
+  // Find top user
+  const userOrderCounts: Record<number, number> = {};
+  allOrders.forEach(order => {
+    userOrderCounts[order.userId] = (userOrderCounts[order.userId] || 0) + 1;
+  });
+  
+  let topUserId = null;
+  let maxOrders = 0;
+  for (const [userId, count] of Object.entries(userOrderCounts)) {
+    if (count > maxOrders) {
+      maxOrders = count;
+      topUserId = parseInt(userId);
+    }
+  }
+  
+  let topUser = null;
+  if (topUserId) {
+    const result = await db.select().from(users).where(eq(users.id, topUserId)).limit(1);
+    topUser = result.length > 0 ? result[0] : null;
+  }
+  
+  return { totalOrders, byMonth, topUser };
 }
 
 // TODO: add feature queries here as your schema grows.

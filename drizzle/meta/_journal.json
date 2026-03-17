@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1773744977823,
+      "tag": "0000_condemned_caretaker",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1773746261608,
+      "tag": "0001_soft_mandrill",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773746363089,
+      "tag": "0002_special_kid_colt",
+      "breakpoints": true
+    }
+  ]
 }
