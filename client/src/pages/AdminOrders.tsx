@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import { Loader2, FileUp, CheckCircle, Clock } from "lucide-react";
+import MainLayout from "@/components/MainLayout";
 
 export default function AdminOrders() {
   const { user, loading: authLoading } = useAuth();
@@ -18,9 +19,11 @@ export default function AdminOrders() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </MainLayout>
     );
   }
 
@@ -76,7 +79,8 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <MainLayout>
+      <div className="bg-background text-foreground">
       <div className="container py-8">
         {/* Header */}
         <div className="mb-12 border-b divider-line pb-8">
@@ -226,5 +230,6 @@ export default function AdminOrders() {
         )}
       </div>
     </div>
+    </MainLayout>
   );
 }

@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { Loader2, Plus, FileText, Clock, CheckCircle } from "lucide-react";
+import MainLayout from "@/components/MainLayout";
 
 export default function Orders() {
   const { user, loading: authLoading } = useAuth();
-  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<"my-orders" | "create">("my-orders");
 
   const { data: myOrders, isLoading: ordersLoading } = trpc.orders.myOrders.useQuery();
@@ -53,19 +52,17 @@ export default function Orders() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </MainLayout>
     );
   }
 
-  if (!user) {
-    setLocation("/");
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <MainLayout>
+      <div className="bg-background text-foreground">
       <div className="container py-8">
         {/* Header */}
         <div className="mb-12 border-b divider-line pb-8">
@@ -268,5 +265,6 @@ export default function Orders() {
         )}
       </div>
     </div>
+    </MainLayout>
   );
 }

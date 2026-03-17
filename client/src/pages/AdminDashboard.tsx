@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { Loader2, BarChart3, Users, FileText } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import MainLayout from "@/components/MainLayout";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -12,9 +13,11 @@ export default function AdminDashboard() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </MainLayout>
     );
   }
 
@@ -32,8 +35,9 @@ export default function AdminDashboard() {
     : [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="container py-8">
+    <MainLayout>
+      <div className="bg-background text-foreground">
+        <div className="container py-8">
         {/* Header */}
         <div className="mb-12 border-b divider-line pb-8">
           <div className="flex items-center mb-4">
@@ -158,7 +162,8 @@ export default function AdminDashboard() {
             </button>
           </Card>
         </div>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   );
 }

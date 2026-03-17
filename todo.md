@@ -48,3 +48,13 @@
 - [ ] Criar checkpoint final
 - [ ] Testar em ambiente de produção
 - [ ] Documentar instruções de uso
+
+
+## Redesign do Layout (Nova Solicitação)
+- [x] Criar componente DashboardLayout com sidebar navegável
+- [x] Implementar menu expansível com submenu
+- [x] Adaptar Orders para usar novo layout
+- [x] Adaptar Checklist para usar novo layout
+- [x] Adaptar AdminDashboard para usar novo layout
+- [x] Adaptar AdminOrders para usar novo layout
+- [x] Testar navegação e responsividade
