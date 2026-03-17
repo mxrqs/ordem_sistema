@@ -68,3 +68,15 @@
 - [x] Implementar alerta amarelo para avisos pendentes
 - [x] Redesenhar páginas de Orders, Checklist, Admin
 - [x] Testar responsividade e UX
+
+
+## Implementação do Formulário Multi-Step (Nova Solicitação)
+- [x] Remover background cinza da página de Orders
+- [x] Criar componente OrderForm com multi-step
+- [x] Implementar seleção de tipo (OS/OC)
+- [x] Implementar steps para OS (categoria, contrato, placa, fotos, KM, informe)
+- [x] Implementar steps para OC (contrato, placa, fotos, KM, informe, orçamento)
+- [x] Adicionar upload de fotos/evidências
+- [x] Adicionar upload de orçamento (PDF/imagem)
+- [x] Implementar resumo e confirmação
+- [x] Testar fluxo completo
