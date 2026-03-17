@@ -12,7 +12,7 @@ interface OrderFormProps {
 
 export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFormProps) {
   const createOrderMutation = trpc.orders.create.useMutation();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(orderType ? 1 : 0);
   const [images, setImages] = useState<File[]>([]);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
 
@@ -86,7 +86,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
   };
 
   const osSteps = [
-    { title: "Tipo de OS", desc: "Escolha a categoria" },
+    { title: "Categoria", desc: "Escolha a categoria" },
     { title: "Contrato", desc: "Informe o contrato" },
     { title: "Placa", desc: "Placa do veículo" },
     { title: "Fotos", desc: "Envie as fotos" },
@@ -142,8 +142,8 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
 
       {/* Form Content */}
       <Card className="bg-white border border-border rounded-lg p-8 mb-8">
-        {/* Step 0: Type Selection */}
-        {step === 0 && (
+        {/* Step 0: Type Selection - Only show if no orderType provided */}
+        {step === 0 && !orderType && (
           <div className="space-y-4">
             <p className="text-foreground mb-6">Selecione o tipo de ordem que deseja criar:</p>
             <div className="grid grid-cols-2 gap-4">

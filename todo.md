@@ -80,3 +80,12 @@
 - [x] Adicionar upload de orçamento (PDF/imagem)
 - [x] Implementar resumo e confirmação
 - [x] Testar fluxo completo
+
+
+## Separação de Formulários por Tipo
+- [x] Modificar Sidebar para navegar direto para formulário OS
+- [x] Modificar Sidebar para navegar direto para formulário OC
+- [x] Criar página FormOS.tsx com formulário multi-step para OS
+- [x] Criar página FormOC.tsx com formulário multi-step para OC
+- [x] Remover seleção de tipo do OrderForm
+- [x] Atualizar rotas no App.tsx

@@ -114,7 +114,7 @@ export default function Sidebar() {
             {/* Ordem de Serviço */}
             <button
               onClick={() => {
-                setLocation("/orders");
+                setLocation("/form/os");
                 setSidebarOpen(false);
               }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
@@ -126,7 +126,7 @@ export default function Sidebar() {
             {/* Ordem de Compra */}
             <button
               onClick={() => {
-                setLocation("/orders");
+                setLocation("/form/oc");
                 setSidebarOpen(false);
               }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
