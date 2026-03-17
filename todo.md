@@ -122,3 +122,11 @@
 - [x] Implementar upload de fotos nas solicitações de serviço
 - [x] Implementar visualização de fotos nos cards de solicitações
 - [x] Adicionar galeria de fotos nas páginas MyOrders e AdminOrders
+
+
+## Importação de Dados e Novas Funcionalidades
+- [ ] Criar script para importar dados do Excel para o banco de dados
+- [ ] Otimizar layout para mobile (responsividade)
+- [ ] Criar aba de Relatórios com download de OS em PDF/Excel
+- [ ] Criar aba de Relatórios com download de OC em PDF/Excel
+- [ ] Testar importação e dados reais no sistema

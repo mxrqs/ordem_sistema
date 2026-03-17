@@ -223,11 +223,11 @@ export default function Sidebar() {
               {/* Relatórios */}
               <button
                 onClick={() => {
-                  setLocation("/admin/reports");
+                  setLocation("/reports");
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/admin/reports")
+                  isActive("/reports")
                     ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
