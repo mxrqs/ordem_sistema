@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Orders from "./pages/Orders";
+import MyOrders from "./pages/MyOrders";
 import FormOS from "./pages/FormOS";
 import FormOC from "./pages/FormOC";
 import Checklist from "./pages/Checklist";
@@ -17,6 +18,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/orders"} component={Orders} />
+      <Route path={"/my-orders"} component={MyOrders} />
       <Route path={"/form/os"} component={FormOS} />
       <Route path={"/form/oc"} component={FormOC} />
       <Route path={"/checklist"} component={Checklist} />

@@ -138,7 +138,7 @@ export default function Sidebar() {
             {/* Minhas Solicitações */}
             <button
               onClick={() => {
-                setLocation("/orders");
+                setLocation("/my-orders");
                 setSidebarOpen(false);
               }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"

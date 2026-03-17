@@ -89,3 +89,13 @@
 - [x] Criar página FormOC.tsx com formulário multi-step para OC
 - [x] Remover seleção de tipo do OrderForm
 - [x] Atualizar rotas no App.tsx
+
+
+## Implementação de Minhas Solicitações
+- [x] Criar página MyOrders.tsx para usuários verem suas solicitações
+- [x] Separar solicitações em abas: OS e OC
+- [x] Implementar query tRPC para buscar apenas solicitações do usuário
+- [x] Implementar query tRPC para admin buscar todas as solicitações
+- [x] Atualizar Sidebar para navegar para Minhas Solicitações
+- [ ] Adicionar filtros e busca nas solicitações
+- [x] Testar isolamento de dados por usuário
