@@ -3,25 +3,57 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useState } from "react";
-import { Loader2, FileUp, CheckCircle, Clock } from "lucide-react";
+import { useState, useRef } from "react";
+import {
+  Loader2,
+  FileUp,
+  CheckCircle2,
+  Clock,
+  PlayCircle,
+  FileText,
+  Download,
+  Upload,
+  User,
+  Calendar,
+  AlertCircle,
+} from "lucide-react";
 import MainLayout from "@/components/MainLayout";
+import { toast } from "sonner";
 
 export default function AdminOrders() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
-  const [filterType, setFilterType] = useState<"all" | "OS" | "OC">("all");
+  const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
   const [uploadingOrderId, setUploadingOrderId] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const utils = trpc.useUtils();
   const { data: allOrders, isLoading } = trpc.orders.all.useQuery();
-  const updateStatusMutation = trpc.orders.updateStatus.useMutation();
-  const uploadPdfMutation = trpc.orders.uploadPdf.useMutation();
+  const updateStatusMutation = trpc.orders.updateStatus.useMutation({
+    onSuccess: () => {
+      utils.orders.all.invalidate();
+      toast.success("Status atualizado com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar status");
+    },
+  });
+  const uploadPdfMutation = trpc.orders.uploadPdf.useMutation({
+    onSuccess: () => {
+      utils.orders.all.invalidate();
+      setUploadingOrderId(null);
+      toast.success("PDF enviado com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao enviar PDF");
+    },
+  });
 
   if (authLoading || isLoading) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-screen">
-          <Loader2 className="w-8 h-8 animate-spin" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </MainLayout>
     );
@@ -32,19 +64,18 @@ export default function AdminOrders() {
     return null;
   }
 
-  const filteredOrders = allOrders?.filter(order => 
-    filterType === "all" ? true : order.type === filterType
-  ) || [];
+  // Filter orders by type
+  const filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
 
-  const handleStatusChange = async (orderId: number, newStatus: "not_started" | "in_process" | "completed") => {
-    try {
-      await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
-    } catch (error) {
-      console.error("Error updating status:", error);
-    }
+  const handleStatusChange = async (
+    orderId: number,
+    newStatus: "not_started" | "in_process" | "completed"
+  ) => {
+    await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
   };
 
   const handlePdfUpload = async (orderId: number, file: File) => {
+    setUploadingOrderId(orderId);
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -54,182 +85,292 @@ export default function AdminOrders() {
           pdfBase64: base64,
           fileName: file.name,
         });
-        setUploadingOrderId(null);
       };
       reader.readAsDataURL(file);
     } catch (error) {
       console.error("Error uploading PDF:", error);
+      setUploadingOrderId(null);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-      not_started: { label: "Não Iniciada", icon: <Clock className="w-4 h-4" />, color: "bg-yellow-50 text-yellow-900 border-yellow-200" },
-      in_process: { label: "Em Processo", icon: <Loader2 className="w-4 h-4 animate-spin" />, color: "bg-blue-50 text-blue-900 border-blue-200" },
-      completed: { label: "Concluída", icon: <CheckCircle className="w-4 h-4" />, color: "bg-green-50 text-green-900 border-green-200" },
-    };
-
-    const statusInfo = statusMap[status] || statusMap.not_started;
-    return (
-      <div className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold border rounded ${statusInfo.color}`}>
-        {statusInfo.icon}
-        {statusInfo.label}
-      </div>
-    );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "not_started":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "in_process":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "not_started":
+        return <Clock className="w-4 h-4" />;
+      case "in_process":
+        return <PlayCircle className="w-4 h-4" />;
+      case "completed":
+        return <CheckCircle2 className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "not_started":
+        return "Não Iniciada";
+      case "in_process":
+        return "Em Processo";
+      case "completed":
+        return "Concluída";
+      default:
+        return status;
+    }
+  };
+
+  const osCount = allOrders?.filter((o) => o.type === "OS").length || 0;
+  const ocCount = allOrders?.filter((o) => o.type === "OC").length || 0;
 
   return (
     <MainLayout>
-      <div className="bg-background text-foreground">
-      <div className="container py-8">
+      <div className="bg-white min-h-screen">
         {/* Header */}
-        <div className="mb-12 border-b divider-line pb-8">
-          <div className="flex items-center mb-4">
-            <div className="accent-square"></div>
-            <span className="text-caption font-semibold tracking-wide">GERENCIAMENTO</span>
+        <div className="border-b border-border">
+          <div className="container mx-auto px-8 py-8">
+            <h1 className="text-4xl font-bold text-foreground mb-2">Gerenciar Solicitações</h1>
+            <p className="text-muted-foreground">
+              Controle o status das solicitações e envie PDFs para os usuários
+            </p>
           </div>
-          <h1 className="text-headline">Todas as Ordens</h1>
-          <p className="text-body text-muted-foreground mt-2">
-            Gerencie, atualize status e faça upload de PDFs para as solicitações
-          </p>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-4 mb-8 border-b divider-line pb-4">
-          {["all", "OS", "OC"].map((type) => (
+        {/* Content */}
+        <div className="container mx-auto px-8 py-8">
+          {/* Tabs */}
+          <div className="flex gap-6 mb-8 border-b border-border">
             <button
-              key={type}
-              onClick={() => setFilterType(type as any)}
-              className={`text-title font-semibold pb-2 border-b-2 transition-colors ${
-                filterType === type
-                  ? "border-accent text-foreground"
-                  : "border-transparent text-muted-foreground"
+              onClick={() => setActiveTab("OS")}
+              className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+                activeTab === "OS"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              {type === "all" ? "Todas" : type === "OS" ? "Ordens de Serviço" : "Ordens de Compra"}
+              <FileText className="w-4 h-4" />
+              Ordens de Serviço
+              <span className="ml-1 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                {osCount}
+              </span>
             </button>
-          ))}
-          <div className="ml-auto text-caption text-muted-foreground pt-2">
-            {filteredOrders.length} ordem{filteredOrders.length !== 1 ? "s" : ""}
+            <button
+              onClick={() => setActiveTab("OC")}
+              className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+                activeTab === "OC"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Ordens de Compra
+              <span className="ml-1 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                {ocCount}
+              </span>
+            </button>
           </div>
-        </div>
 
-        {/* Orders Table */}
-        {filteredOrders.length > 0 ? (
-          <div className="space-y-4">
-            {filteredOrders.map((order) => (
-              <Card key={order.id} className="p-6 border divider-line">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <p className="text-caption text-muted-foreground font-semibold mb-1">TIPO</p>
-                    <span className="text-xs font-bold bg-muted text-muted-foreground px-2 py-1">
-                      {order.type}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-caption text-muted-foreground font-semibold mb-1">TÍTULO</p>
-                    <p className="text-body font-semibold">{order.title}</p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-muted-foreground font-semibold mb-1">STATUS</p>
-                    {getStatusBadge(order.status)}
-                  </div>
-                  <div>
-                    <p className="text-caption text-muted-foreground font-semibold mb-1">DATA</p>
-                    <p className="text-body">
-                      {new Date(order.createdAt).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                </div>
-
-                {order.description && (
-                  <p className="text-body text-muted-foreground mb-4">{order.description}</p>
-                )}
-
-                {order.totalValue && (
-                  <p className="text-body font-semibold mb-4">
-                    Valor: <span className="text-accent">R$ {order.totalValue}</span>
-                  </p>
-                )}
-
-                {/* Actions */}
-                <div className="border-t divider-line pt-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Status Update */}
-                    <div>
-                      <p className="text-caption text-muted-foreground font-semibold mb-2">ATUALIZAR STATUS</p>
-                      <select
-                        value={order.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            order.id,
-                            e.target.value as "not_started" | "in_process" | "completed"
-                          )
-                        }
-                        disabled={updateStatusMutation.isPending}
-                        className="input-minimal w-full text-sm"
+          {/* Orders List */}
+          {filteredOrders.length > 0 ? (
+            <div className="space-y-4">
+              {filteredOrders.map((order) => (
+                <Card
+                  key={order.id}
+                  className="bg-white border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  {/* Order Header */}
+                  <div className="p-6 pb-4">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          order.type === "OS" ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"
+                        }`}>
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">
+                            {order.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"} #{order.id}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{order.title || "Sem título"}</p>
+                        </div>
+                      </div>
+                      <div
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 border ${getStatusColor(
+                          order.status
+                        )}`}
                       >
-                        <option value="not_started">Não Iniciada</option>
-                        <option value="in_process">Em Processo</option>
-                        <option value="completed">Concluída</option>
-                      </select>
+                        {getStatusIcon(order.status)}
+                        {getStatusLabel(order.status)}
+                      </div>
                     </div>
 
-                    {/* PDF Upload */}
-                    <div>
-                      <p className="text-caption text-muted-foreground font-semibold mb-2">UPLOAD PDF</p>
-                      {uploadingOrderId === order.id ? (
+                    {/* Order Info Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Solicitante</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {(order as any).userName || "Desconhecido"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Data</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {new Date(order.createdAt).toLocaleDateString("pt-BR")}
+                          </p>
+                        </div>
+                      </div>
+                      {order.type === "OC" && order.totalValue && (
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Valor</p>
+                            <p className="text-sm font-semibold text-green-600">
+                              R$ {order.totalValue}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">PDF</p>
+                          <p className="text-sm font-semibold">
+                            {order.pdfUrl ? (
+                              <span className="text-green-600">Anexado</span>
+                            ) : (
+                              <span className="text-yellow-600">Pendente</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {order.description && (
+                      <p className="text-sm text-muted-foreground bg-gray-50 rounded-lg p-3 mb-4">
+                        {order.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Actions Bar */}
+                  <div className="bg-gray-50 border-t border-border px-6 py-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                      {/* Status Control */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase">Status:</span>
+                        <select
+                          value={order.status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              order.id,
+                              e.target.value as "not_started" | "in_process" | "completed"
+                            )
+                          }
+                          disabled={updateStatusMutation.isPending}
+                          className="text-sm border border-border rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        >
+                          <option value="not_started">Não Iniciada</option>
+                          <option value="in_process">Em Processo</option>
+                          <option value="completed">Concluída</option>
+                        </select>
+                      </div>
+
+                      <div className="h-6 w-px bg-border" />
+
+                      {/* PDF Upload */}
+                      <div className="flex items-center gap-2">
                         <input
                           type="file"
                           accept=".pdf"
+                          ref={fileInputRef}
+                          className="hidden"
                           onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              handlePdfUpload(order.id, e.target.files[0]);
+                            if (e.target.files?.[0] && uploadingOrderId) {
+                              handlePdfUpload(uploadingOrderId, e.target.files[0]);
                             }
                           }}
-                          className="input-minimal w-full text-sm"
                         />
-                      ) : (
-                        <button
-                          onClick={() => setUploadingOrderId(order.id)}
-                          className="w-full bg-muted text-muted-foreground px-4 py-2 font-semibold border border-border hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors flex items-center justify-center gap-2"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setUploadingOrderId(order.id);
+                            // Create a temporary file input for this specific order
+                            const input = document.createElement("input");
+                            input.type = "file";
+                            input.accept = ".pdf";
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) {
+                                handlePdfUpload(order.id, file);
+                              }
+                            };
+                            input.click();
+                          }}
+                          disabled={uploadPdfMutation.isPending && uploadingOrderId === order.id}
+                          className="flex items-center gap-2 text-sm"
                         >
-                          <FileUp className="w-4 h-4" />
-                          {order.pdfUrl ? "Substituir PDF" : "Enviar PDF"}
-                        </button>
-                      )}
-                    </div>
+                          {uploadPdfMutation.isPending && uploadingOrderId === order.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4" />
+                              {order.pdfUrl ? "Substituir PDF" : "Enviar PDF"}
+                            </>
+                          )}
+                        </Button>
+                      </div>
 
-                    {/* PDF Link */}
-                    <div>
-                      <p className="text-caption text-muted-foreground font-semibold mb-2">DOCUMENTO</p>
-                      {order.pdfUrl ? (
-                        <a
-                          href={order.pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full bg-accent text-accent-foreground px-4 py-2 font-semibold border border-accent hover:opacity-90 transition-opacity block text-center"
-                        >
-                          Baixar PDF
-                        </a>
-                      ) : (
-                        <div className="w-full bg-muted text-muted-foreground px-4 py-2 text-center text-sm">
-                          Sem PDF
-                        </div>
+                      {/* Download PDF */}
+                      {order.pdfUrl && (
+                        <>
+                          <div className="h-6 w-px bg-border" />
+                          <a
+                            href={order.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                          >
+                            <Download className="w-4 h-4" />
+                            Baixar PDF
+                          </a>
+                        </>
                       )}
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Nenhuma ordem encontrada</p>
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground text-lg">
+                Nenhuma {activeTab === "OS" ? "Ordem de Serviço" : "Ordem de Compra"} encontrada
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </MainLayout>
   );
 }

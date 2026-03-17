@@ -76,7 +76,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
         type: formData.type,
         title: formData.title || `${formData.type} - ${formData.placa}`,
         description: formData.description || formData.informe,
-        totalValue: formData.totalValue,
+        totalValue: formData.type === "OC" ? formData.totalValue : undefined,
         items: [],
       });
       onClose();

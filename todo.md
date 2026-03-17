@@ -99,3 +99,13 @@
 - [x] Atualizar Sidebar para navegar para Minhas Solicitações
 - [ ] Adicionar filtros e busca nas solicitações
 - [x] Testar isolamento de dados por usuário
+
+
+## Melhorias Admin e Remoção de Valor OS
+- [x] Remover campo Valor das Ordens de Serviço (OS)
+- [x] Redesenhar AdminOrders para mostrar todas solicitações de todos usuários
+- [x] Separar AdminOrders em abas OS e OC
+- [x] Implementar controle de status (não iniciada, em processo, concluída)
+- [x] Implementar upload de PDF pelo admin para cada solicitação
+- [x] Garantir que usuário veja e baixe o PDF em Minhas Solicitações
+- [x] Implementar endpoint de upload de PDF no backend

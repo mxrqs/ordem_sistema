@@ -78,14 +78,26 @@ export const appRouter = router({
       return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
     }),
 
-    // Get all orders (admin only)
+    // Get all orders with user info (admin only)
     all: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
       }
       const db = await getDb();
       if (!db) return [];
-      return db.select().from(orders);
+      const allOrders = await db.select().from(orders);
+      // Fetch user info for each order
+      const ordersWithUser = await Promise.all(
+        allOrders.map(async (order) => {
+          const userResult = await db.select().from(users).where(eq(users.id, order.userId)).limit(1);
+          return {
+            ...order,
+            userName: userResult.length > 0 ? userResult[0].name : "Desconhecido",
+            userEmail: userResult.length > 0 ? userResult[0].email : null,
+          };
+        })
+      );
+      return ordersWithUser;
     }),
 
     // Update order status (admin only)
