@@ -5,7 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
 import { orders, orderItems, checklists, notifications, users, orderPhotos } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { sendEmailNotification, getStatusChangeMessage, getPdfAttachedMessage } from "./_core/email";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -41,6 +41,10 @@ export const appRouter = router({
         contrato: z.string().optional(),
         categoria: z.string().optional(),
       }))
+      .output(z.object({
+        id: z.number(),
+        message: z.string(),
+      }))
       .mutation(async ({ ctx, input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -58,7 +62,12 @@ export const appRouter = router({
             categoria: input.categoria || null,
           });
 
-          const orderId = (result as any).insertId;
+          const insertedOrders = await db.select().from(orders).where(eq(orders.userId, ctx.user.id)).orderBy(desc(orders.createdAt)).limit(1);
+          const orderId = insertedOrders[0]?.id;
+          
+          if (!orderId) {
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to retrieve order ID" });
+          }
 
           // Insert order items if provided
           if (input.items && input.items.length > 0) {
