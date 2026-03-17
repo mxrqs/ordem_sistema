@@ -117,13 +117,9 @@ export default function Sidebar() {
                 setLocation("/orders");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/orders")
-                  ? "bg-blue-100 text-primary"
-                  : "text-foreground hover:bg-muted"
-              }`}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
-              <FileText className="w-5 h-5" />
+              <FileText className="w-5 h-5 text-primary" />
               <span>Ordem de Serviço</span>
             </button>
 
@@ -133,13 +129,9 @@ export default function Sidebar() {
                 setLocation("/orders");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/orders")
-                  ? "bg-blue-100 text-primary"
-                  : "text-foreground hover:bg-muted"
-              }`}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
-              <FileText className="w-5 h-5" />
+              <FileText className="w-5 h-5 text-primary" />
               <span>Ordem de Compra</span>
             </button>
 
@@ -149,13 +141,9 @@ export default function Sidebar() {
                 setLocation("/orders");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/orders")
-                  ? "bg-blue-100 text-primary"
-                  : "text-foreground hover:bg-muted"
-              }`}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
-              <FileText className="w-5 h-5" />
+              <FileText className="w-5 h-5 text-primary" />
               <span>Minhas Solicitações</span>
             </button>
           </div>
