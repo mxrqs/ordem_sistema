@@ -58,3 +58,13 @@
 - [x] Adaptar AdminDashboard para usar novo layout
 - [x] Adaptar AdminOrders para usar novo layout
 - [x] Testar navegação e responsividade
+
+
+## Redesign Novo (Order Control Style)
+- [x] Atualizar paleta de cores (azul, cinza, amarelo para alertas)
+- [x] Redesenhar Sidebar com logo "OC"
+- [x] Reorganizar menu em seções (Solicitações, Gestão, Administração)
+- [x] Redesenhar Dashboard com cards informativos
+- [x] Implementar alerta amarelo para avisos pendentes
+- [x] Redesenhar páginas de Orders, Checklist, Admin
+- [x] Testar responsividade e UX

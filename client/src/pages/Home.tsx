@@ -1,7 +1,8 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
 import { useEffect } from "react";
+import { useLocation } from "wouter";
+import { getLoginUrl } from "@/const";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -9,121 +10,109 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      // Redirect based on user role
-      if (user.role === "admin") {
-        setLocation("/admin/dashboard");
-      } else {
-        setLocation("/orders");
-      }
+      setLocation(user.role === "admin" ? "/admin/dashboard" : "/orders");
     }
   }, [loading, isAuthenticated, user, setLocation]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl font-bold mb-4">Carregando...</div>
+          <div className="text-2xl font-bold mb-4 text-foreground">Carregando...</div>
         </div>
       </div>
     );
   }
 
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Hero Section */}
-      <div className="section-spacing border-b divider-line">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      {/* Header */}
+      <header className="border-b border-border">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl">
+              OC
+            </div>
             <div>
-              <div className="flex items-center mb-8">
-                <div className="accent-square"></div>
-                <span className="text-caption font-semibold tracking-wide">SISTEMA DE ORDENS</span>
-              </div>
-              <h1 className="text-display mb-6">
-                Gerenciamento de Ordens de Compra e Serviço
-              </h1>
-              <p className="text-body text-muted-foreground mb-8 max-w-lg">
-                Plataforma integrada para solicitação, acompanhamento e gerenciamento de ordens de compra e serviço com controle administrativo completo.
-              </p>
-              <div className="flex gap-4">
-                <Button 
-                  onClick={() => setLocation("/login")}
-                  className="bg-accent text-accent-foreground px-8 py-3 font-semibold border border-accent hover:opacity-90"
-                >
-                  Entrar
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="px-8 py-3 font-semibold border border-foreground"
-                >
-                  Saiba Mais
-                </Button>
-              </div>
-            </div>
-            <div className="bg-muted p-12 flex items-center justify-center min-h-96">
-              <div className="text-center">
-                <div className="text-6xl font-bold text-accent mb-4">📋</div>
-                <p className="text-muted-foreground">Interface limpa e intuitiva</p>
-              </div>
+              <h1 className="text-2xl font-bold text-foreground">Order Control</h1>
+              <p className="text-sm text-muted-foreground">Sistema de Solicitações</p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Features Section */}
-      <div className="section-spacing">
-        <div className="container">
-          <div className="mb-16">
-            <div className="flex items-center mb-4">
-              <div className="accent-square"></div>
-              <span className="text-caption font-semibold tracking-wide">FUNCIONALIDADES</span>
-            </div>
-            <h2 className="text-headline">Recursos Principais</h2>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-20">
+        <div className="max-w-2xl mx-auto text-center">
+          {/* Hero Section */}
+          <div className="mb-12">
+            <h2 className="text-5xl font-bold text-foreground mb-6">
+              Gerencie suas Ordens de Forma Simples
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Solicitações de compra e serviço, checklist integrado e acompanhamento em tempo real.
+              Tudo em um único lugar.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* Feature 1 */}
-            <div className="border-t divider-line pt-8">
-              <h3 className="text-title mb-4">Solicitações Simplificadas</h3>
-              <p className="text-body text-muted-foreground">
-                Crie ordens de compra e serviço com formulários intuitivos e acompanhe o status em tempo real.
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-blue-100 text-primary flex items-center justify-center mb-4 mx-auto">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Ordens de Serviço</h3>
+              <p className="text-sm text-muted-foreground">
+                Solicite e acompanhe suas ordens de serviço com facilidade
               </p>
             </div>
 
-            {/* Feature 2 */}
-            <div className="border-t divider-line pt-8">
-              <h3 className="text-title mb-4">Painel Administrativo</h3>
-              <p className="text-body text-muted-foreground">
-                Dashboard completo com métricas, gráficos comparativos e controle total sobre todas as solicitações.
+            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 text-secondary flex items-center justify-center mb-4 mx-auto">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Ordens de Compra</h3>
+              <p className="text-sm text-muted-foreground">
+                Gerencie suas solicitações de compra com controle total
               </p>
             </div>
 
-            {/* Feature 3 */}
-            <div className="border-t divider-line pt-8">
-              <h3 className="text-title mb-4">Documentação Segura</h3>
-              <p className="text-body text-muted-foreground">
-                Upload e armazenamento seguro de PDFs em S3 com notificações automáticas por email.
+            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center mb-4 mx-auto">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Checklist</h3>
+              <p className="text-sm text-muted-foreground">
+                Organize suas tarefas com um checklist integrado
               </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* CTA Section */}
-      <div className="section-spacing bg-muted border-t divider-line">
-        <div className="container text-center">
-          <h2 className="text-headline mb-6">Pronto para começar?</h2>
-          <p className="text-body text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Acesse o sistema para gerenciar suas ordens de compra e serviço de forma eficiente e organizada.
-          </p>
-          <Button 
-            onClick={() => setLocation("/login")}
-            className="bg-accent text-accent-foreground px-8 py-3 font-semibold border border-accent hover:opacity-90"
-          >
-            Acessar Sistema
-          </Button>
+          {/* CTA Button */}
+          <a href={getLoginUrl()}>
+            <Button className="bg-primary text-primary-foreground px-8 py-3 text-lg font-semibold hover:bg-primary/90 transition-colors">
+              Entrar no Sistema
+            </Button>
+          </a>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border mt-20 py-8 bg-white">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>&copy; 2026 Order Control. Todos os direitos reservados.</p>
+        </div>
+      </footer>
     </div>
   );
 }
