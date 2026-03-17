@@ -39,6 +39,10 @@ export const orders = mysqlTable("orders", {
   pdfUrl: varchar("pdfUrl", { length: 500 }),
   pdfKey: varchar("pdfKey", { length: 500 }), // S3 key for the PDF
   totalValue: varchar("totalValue", { length: 20 }),
+  placa: varchar("placa", { length: 20 }),
+  km: varchar("km", { length: 20 }),
+  contrato: varchar("contrato", { length: 100 }),
+  categoria: varchar("categoria", { length: 50 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -94,6 +98,21 @@ export const notifications = mysqlTable("notifications", {
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
 
+/**
+ * Photos attached to orders
+ */
+export const orderPhotos = mysqlTable("orderPhotos", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  label: varchar("label", { length: 100 }), // e.g. "frontal", "km", "orcamento"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type OrderPhoto = typeof orderPhotos.$inferSelect;
+export type InsertOrderPhoto = typeof orderPhotos.$inferInsert;
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   orders: many(orders),
@@ -107,11 +126,19 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     references: [users.id],
   }),
   items: many(orderItems),
+  photos: many(orderPhotos),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {
     fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+}));
+
+export const orderPhotosRelations = relations(orderPhotos, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderPhotos.orderId],
     references: [orders.id],
   }),
 }));

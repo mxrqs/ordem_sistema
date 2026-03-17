@@ -1,24 +1,29 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
+import { Wrench, ShoppingCart, ClipboardList, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      setLocation(user.role === "admin" ? "/admin/dashboard" : "/orders");
+      setLocation(user.role === "admin" ? "/admin/dashboard" : "/my-orders");
     }
   }, [loading, isAuthenticated, user, setLocation]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl font-bold mb-4 text-foreground">Carregando...</div>
+          <div className="w-16 h-16 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-2xl mx-auto mb-4 animate-pulse">
+            OC
+          </div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -29,90 +34,116 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl">
+    <div className="min-h-screen bg-white flex">
+      {/* Left Side - Login Form */}
+      <div className="w-full lg:w-[480px] flex flex-col justify-center px-8 lg:px-16 py-12 bg-white">
+        {/* Logo */}
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl">
               OC
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Order Control</h1>
-              <p className="text-sm text-muted-foreground">Sistema de Solicitações</p>
+              <p className="text-xs text-muted-foreground">Solicitações e checklist</p>
             </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-20">
-        <div className="max-w-2xl mx-auto text-center">
-          {/* Hero Section */}
-          <div className="mb-12">
-            <h2 className="text-5xl font-bold text-foreground mb-6">
-              Gerencie suas Ordens de Forma Simples
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Solicitações de compra e serviço, checklist integrado e acompanhamento em tempo real.
-              Tudo em um único lugar.
-            </p>
-          </div>
+        {/* Welcome Text */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-foreground mb-2">Bem-vindo de volta</h2>
+          <p className="text-muted-foreground">
+            Acesse o sistema para gerenciar suas ordens de serviço e compra.
+          </p>
+        </div>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-blue-100 text-primary flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        {/* Login Card */}
+        <div className="space-y-6">
+          {/* Remember Me */}
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <div
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                rememberMe
+                  ? "bg-primary border-primary"
+                  : "border-gray-300 hover:border-primary"
+              }`}
+              onClick={() => setRememberMe(!rememberMe)}
+            >
+              {rememberMe && (
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Ordens de Serviço</h3>
-              <p className="text-sm text-muted-foreground">
-                Solicite e acompanhe suas ordens de serviço com facilidade
-              </p>
+              )}
             </div>
+            <span className="text-sm text-foreground">Manter conectado</span>
+          </label>
 
-            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 text-secondary flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Ordens de Compra</h3>
-              <p className="text-sm text-muted-foreground">
-                Gerencie suas solicitações de compra com controle total
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Checklist</h3>
-              <p className="text-sm text-muted-foreground">
-                Organize suas tarefas com um checklist integrado
-              </p>
-            </div>
-          </div>
-
-          {/* CTA Button */}
-          <a href={getLoginUrl()}>
-            <Button className="bg-primary text-primary-foreground px-8 py-3 text-lg font-semibold hover:bg-primary/90 transition-colors">
+          {/* Login Button */}
+          <a href={getLoginUrl()} className="block">
+            <Button className="w-full bg-primary text-primary-foreground py-6 text-base font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+              <LogIn className="w-5 h-5" />
               Entrar no Sistema
             </Button>
           </a>
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border mt-20 py-8 bg-white">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 Order Control. Todos os direitos reservados.</p>
+          <p className="text-xs text-center text-muted-foreground">
+            Ao entrar, você será redirecionado para autenticação segura.
+          </p>
         </div>
-      </footer>
+
+        {/* Footer */}
+        <div className="mt-auto pt-12">
+          <p className="text-xs text-muted-foreground">
+            &copy; 2026 Order Control. Todos os direitos reservados.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Feature Showcase */}
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-blue-50 via-white to-blue-50 items-center justify-center p-16">
+        <div className="max-w-lg">
+          <h3 className="text-4xl font-bold text-foreground mb-4 leading-tight">
+            Gerencie suas Ordens de Forma Simples
+          </h3>
+          <p className="text-lg text-muted-foreground mb-12">
+            Solicitações de compra e serviço, checklist integrado e acompanhamento em tempo real.
+          </p>
+
+          {/* Feature Cards */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 bg-white rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <Wrench className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">Ordens de Serviço</h4>
+                <p className="text-sm text-muted-foreground">Solicite e acompanhe suas OS com facilidade</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                <ShoppingCart className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">Ordens de Compra</h4>
+                <p className="text-sm text-muted-foreground">Gerencie suas solicitações de compra</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+                <ClipboardList className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">Checklist</h4>
+                <p className="text-sm text-muted-foreground">Organize suas tarefas com checklist integrado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

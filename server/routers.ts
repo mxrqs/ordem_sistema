@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
-import { orders, orderItems, checklists, notifications, users } from "../drizzle/schema";
+import { orders, orderItems, checklists, notifications, users, orderPhotos } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendEmailNotification, getStatusChangeMessage, getPdfAttachedMessage } from "./_core/email";
 import { storagePut } from "./storage";
@@ -36,6 +36,10 @@ export const appRouter = router({
           unitValue: z.string().optional(),
         })).optional(),
         totalValue: z.string().optional(),
+        placa: z.string().optional(),
+        km: z.string().optional(),
+        contrato: z.string().optional(),
+        categoria: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const db = await getDb();
@@ -48,6 +52,10 @@ export const appRouter = router({
             title: input.title,
             description: input.description,
             totalValue: input.totalValue || null,
+            placa: input.placa || null,
+            km: input.km || null,
+            contrato: input.contrato || null,
+            categoria: input.categoria || null,
           });
 
           const orderId = (result as any).insertId;
@@ -139,6 +147,50 @@ export const appRouter = router({
           console.error("Error updating order status:", error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         }
+      }),
+
+    // Upload photos for order
+    uploadPhoto: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        photoBase64: z.string(),
+        fileName: z.string(),
+        label: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          const buffer = Buffer.from(input.photoBase64, "base64");
+          const ext = input.fileName.split(".").pop() || "jpg";
+          const randomSuffix = Math.random().toString(36).substring(2, 8);
+          const fileKey = `orders/${input.orderId}/photos/${Date.now()}-${randomSuffix}.${ext}`;
+          const contentType = ext === "png" ? "image/png" : ext === "gif" ? "image/gif" : "image/jpeg";
+
+          const { url } = await storagePut(fileKey, buffer, contentType);
+
+          await db.insert(orderPhotos).values({
+            orderId: input.orderId,
+            url,
+            fileKey,
+            label: input.label || null,
+          });
+
+          return { url, success: true };
+        } catch (error) {
+          console.error("Error uploading photo:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to upload photo" });
+        }
+      }),
+
+    // Get photos for an order
+    getPhotos: protectedProcedure
+      .input(z.object({ orderId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(orderPhotos).where(eq(orderPhotos.orderId, input.orderId));
       }),
 
     // Upload PDF for order (admin only)
@@ -264,6 +316,55 @@ export const appRouter = router({
           console.error("Error deleting checklist:", error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         }
+      }),
+  }),
+
+  users: router({
+    // List all users (admin only)
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(users);
+    }),
+
+    // Update user role (admin only)
+    updateRole: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["user", "admin"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        await db.update(users).set({ role: input.role }).where(eq(users.id, input.userId));
+        return { success: true };
+      }),
+
+    // Delete user (admin only)
+    delete: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot delete yourself" });
+        }
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        // Delete user's orders and checklists first
+        await db.delete(orders).where(eq(orders.userId, input.userId));
+        await db.delete(checklists).where(eq(checklists.userId, input.userId));
+        await db.delete(users).where(eq(users.id, input.userId));
+        return { success: true };
       }),
   }),
 

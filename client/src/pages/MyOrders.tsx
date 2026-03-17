@@ -13,9 +13,92 @@ import {
   Calendar,
   AlertCircle,
   Plus,
+  Image,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import { useState } from "react";
+
+function PhotoGallery({ orderId }: { orderId: number }) {
+  const { data: photos, isLoading } = trpc.orders.getPhotos.useQuery({ orderId });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState(0);
+
+  if (isLoading) return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
+  if (!photos || photos.length === 0) return null;
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Image className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          Fotos ({photos.length})
+        </span>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {photos.map((photo, i) => (
+          <button
+            key={photo.id}
+            onClick={() => { setCurrentPhoto(i); setLightboxOpen(true); }}
+            className="relative group"
+          >
+            <img
+              src={photo.url}
+              alt={photo.label || `Foto ${i + 1}`}
+              className="w-20 h-20 object-cover rounded-lg border border-border hover:border-primary transition-colors cursor-pointer"
+            />
+            {photo.label && (
+              <span className="absolute bottom-0.5 left-0.5 text-[9px] bg-black/60 text-white px-1 py-0.5 rounded">
+                {photo.label}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={photos[currentPhoto]?.url}
+              alt={photos[currentPhoto]?.label || "Foto"}
+              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+            />
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            {photos.length > 1 && (
+              <>
+                <button
+                  onClick={() => setCurrentPhoto((currentPhoto - 1 + photos.length) % photos.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setCurrentPhoto((currentPhoto + 1) % photos.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+              {currentPhoto + 1} / {photos.length}
+              {photos[currentPhoto]?.label && ` — ${photos[currentPhoto].label}`}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MyOrders() {
   const { user, loading: authLoading } = useAuth();
@@ -77,7 +160,6 @@ export default function MyOrders() {
     }
   };
 
-  // Filter orders by type
   const filteredOrders = orders?.filter((order) => order.type === activeTab) || [];
   const osCount = orders?.filter((o) => o.type === "OS").length || 0;
   const ocCount = orders?.filter((o) => o.type === "OC").length || 0;
@@ -146,7 +228,7 @@ export default function MyOrders() {
               {filteredOrders.map((order) => (
                 <Card
                   key={order.id}
-                  className="bg-white border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div className="p-6">
                     {/* Order Header */}
@@ -178,15 +260,43 @@ export default function MyOrders() {
                       </div>
                     </div>
 
-                    {/* Order Details */}
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(order.createdAt).toLocaleDateString("pt-BR")}
+                    {/* Order Details Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-gray-50 rounded-lg p-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Data</p>
+                        <p className="text-sm font-semibold text-foreground flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {new Date(order.createdAt).toLocaleDateString("pt-BR")}
+                        </p>
                       </div>
+                      {order.placa && (
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Placa</p>
+                          <p className="text-sm font-bold text-foreground">{order.placa}</p>
+                        </div>
+                      )}
+                      {order.km && (
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">KM/Horímetro</p>
+                          <p className="text-sm font-semibold text-foreground">{order.km}</p>
+                        </div>
+                      )}
+                      {order.contrato && (
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Contrato</p>
+                          <p className="text-sm font-semibold text-foreground">{order.contrato}</p>
+                        </div>
+                      )}
+                      {order.type === "OS" && order.categoria && (
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Categoria</p>
+                          <p className="text-sm font-semibold text-foreground">{order.categoria}</p>
+                        </div>
+                      )}
                       {order.type === "OC" && order.totalValue && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-green-600">R$ {order.totalValue}</span>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Valor</p>
+                          <p className="text-sm font-bold text-green-600">R$ {order.totalValue}</p>
                         </div>
                       )}
                     </div>
@@ -196,6 +306,9 @@ export default function MyOrders() {
                         {order.description}
                       </p>
                     )}
+
+                    {/* Photo Gallery */}
+                    <PhotoGallery orderId={order.id} />
                   </div>
 
                   {/* PDF Section */}

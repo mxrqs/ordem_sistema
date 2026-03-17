@@ -109,3 +109,16 @@
 - [x] Implementar upload de PDF pelo admin para cada solicitação
 - [x] Garantir que usuário veja e baixe o PDF em Minhas Solicitações
 - [x] Implementar endpoint de upload de PDF no backend
+
+
+## Melhorias nos Cards e Sidebar
+- [x] Adicionar campos Placa, KM e Contrato nos cards de solicitações (MyOrders e AdminOrders)
+- [x] Adicionar ícones diferenciados na Sidebar para OS, OC e Minhas Solicitações
+- [x] Salvar dados de placa, km e contrato no banco de dados ao criar ordem
+
+## Novas Funcionalidades - Login, Usuários e Fotos
+- [x] Criar tela de login com botão "Manter conectado"
+- [x] Criar página de administração de usuários (criar, editar, excluir)
+- [x] Implementar upload de fotos nas solicitações de serviço
+- [x] Implementar visualização de fotos nos cards de solicitações
+- [x] Adicionar galeria de fotos nas páginas MyOrders e AdminOrders

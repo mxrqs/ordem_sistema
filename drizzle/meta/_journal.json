@@ -22,6 +22,20 @@
       "when": 1773746363089,
       "tag": "0002_special_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1773766465677,
+      "tag": "0003_luxuriant_living_lightning",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773767378666,
+      "tag": "0004_gigantic_starbolt",
+      "breakpoints": true
     }
   ]
 }

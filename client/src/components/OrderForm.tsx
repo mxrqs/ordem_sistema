@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, ChevronLeft, ChevronRight, Upload, X } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Upload, X, Camera, Check, Image } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface OrderFormProps {
   orderType: "OS" | "OC" | null;
@@ -10,11 +11,28 @@ interface OrderFormProps {
   onTypeSelect: (type: "OS" | "OC") => void;
 }
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove the data:...;base64, prefix
+      const base64 = result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFormProps) {
   const createOrderMutation = trpc.orders.create.useMutation();
+  const uploadPhotoMutation = trpc.orders.uploadPhoto.useMutation();
   const [step, setStep] = useState(orderType ? 1 : 0);
   const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     type: orderType || ("OS" as "OS" | "OC"),
@@ -37,7 +55,16 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImages([...images, ...Array.from(e.target.files)]);
+      const newFiles = Array.from(e.target.files);
+      setImages([...images, ...newFiles]);
+      // Create previews
+      newFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImagePreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -49,107 +76,143 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
 
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
   const handleNext = () => {
     if (formData.type === "OS") {
-      if (step === 1 && !formData.categoria) return;
-      if (step === 2 && !formData.contrato) return;
-      if (step === 3 && !formData.placa) return;
-      if (step === 4 && images.length === 0) return;
-      if (step === 5 && !formData.km) return;
-      if (step === 6 && !formData.informe) return;
+      if (step === 1 && !formData.categoria) { toast.error("Selecione uma categoria"); return; }
+      if (step === 2 && !formData.contrato) { toast.error("Informe o contrato"); return; }
+      if (step === 3 && !formData.placa) { toast.error("Informe a placa"); return; }
+      if (step === 4 && images.length === 0) { toast.error("Envie pelo menos uma foto"); return; }
+      if (step === 5 && !formData.km) { toast.error("Informe o KM/Horímetro"); return; }
+      if (step === 6 && !formData.informe) { toast.error("Preencha o informe técnico"); return; }
     } else {
-      if (step === 1 && !formData.contrato) return;
-      if (step === 2 && !formData.placa) return;
-      if (step === 3 && images.length === 0) return;
-      if (step === 4 && !formData.km) return;
-      if (step === 5 && !formData.informe) return;
-      if (step === 6 && !formData.orcamento && !budgetFile) return;
+      if (step === 1 && !formData.contrato) { toast.error("Informe o contrato"); return; }
+      if (step === 2 && !formData.placa) { toast.error("Informe a placa"); return; }
+      if (step === 3 && images.length === 0) { toast.error("Envie pelo menos uma foto"); return; }
+      if (step === 4 && !formData.km) { toast.error("Informe o KM/Horímetro"); return; }
+      if (step === 5 && !formData.informe) { toast.error("Preencha o informe técnico"); return; }
+      if (step === 6 && !formData.orcamento && !budgetFile) { toast.error("Envie o orçamento"); return; }
     }
     setStep(step + 1);
   };
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      await createOrderMutation.mutateAsync({
+      // 1. Create the order
+      const result = await createOrderMutation.mutateAsync({
         type: formData.type,
-        title: formData.title || `${formData.type} - ${formData.placa}`,
-        description: formData.description || formData.informe,
+        title: `${formData.type} - ${formData.placa}`,
+        description: formData.informe,
         totalValue: formData.type === "OC" ? formData.totalValue : undefined,
+        placa: formData.placa || undefined,
+        km: formData.km || undefined,
+        contrato: formData.contrato || undefined,
+        categoria: formData.type === "OS" ? formData.categoria || undefined : undefined,
         items: [],
       });
+
+      const orderId = result.id;
+
+      // 2. Upload photos
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+        const base64 = await fileToBase64(file);
+        await uploadPhotoMutation.mutateAsync({
+          orderId,
+          photoBase64: base64,
+          fileName: file.name,
+          label: i === 0 ? "frontal" : i === 1 ? "km" : `foto-${i + 1}`,
+        });
+      }
+
+      // 3. Upload budget file as photo if exists (for OC)
+      if (budgetFile) {
+        const base64 = await fileToBase64(budgetFile);
+        await uploadPhotoMutation.mutateAsync({
+          orderId,
+          photoBase64: base64,
+          fileName: budgetFile.name,
+          label: "orcamento",
+        });
+      }
+
+      toast.success("Solicitação criada com sucesso!");
       onClose();
     } catch (error) {
       console.error("Error creating order:", error);
+      toast.error("Erro ao criar solicitação. Tente novamente.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const osSteps = [
-    { title: "Categoria", desc: "Escolha a categoria" },
-    { title: "Contrato", desc: "Informe o contrato" },
-    { title: "Placa", desc: "Placa do veículo" },
-    { title: "Fotos", desc: "Envie as fotos" },
-    { title: "KM/Horímetro", desc: "Informe o KM" },
-    { title: "Informe", desc: "Descrição técnica" },
-    { title: "Resumo", desc: "Revise e confirme" },
+    { title: "Categoria", desc: "Escolha a categoria da OS" },
+    { title: "Contrato", desc: "Informe o número do contrato" },
+    { title: "Placa", desc: "Placa/matrícula do veículo" },
+    { title: "Fotos", desc: "Envie fotos (frontal + KM)" },
+    { title: "KM/Horímetro", desc: "Informe a quilometragem" },
+    { title: "Informe Técnico", desc: "Descrição técnica obrigatória" },
+    { title: "Resumo", desc: "Revise e confirme sua solicitação" },
   ];
 
   const ocSteps = [
-    { title: "Contrato", desc: "Informe o contrato" },
-    { title: "Placa", desc: "Placa do veículo" },
-    { title: "Fotos", desc: "Envie as fotos" },
-    { title: "KM/Horímetro", desc: "Informe o KM" },
-    { title: "Informe", desc: "Descrição técnica" },
+    { title: "Contrato", desc: "Informe o número do contrato" },
+    { title: "Placa", desc: "Placa/matrícula do veículo" },
+    { title: "Fotos", desc: "Envie fotos/evidências" },
+    { title: "KM/Horímetro", desc: "Informe a quilometragem" },
+    { title: "Informe Técnico", desc: "Descrição técnica" },
     { title: "Orçamento", desc: "Envie o orçamento" },
-    { title: "Resumo", desc: "Revise e confirme" },
+    { title: "Resumo", desc: "Revise e confirme sua solicitação" },
   ];
 
   const steps = formData.type === "OS" ? osSteps : ocSteps;
-  const isLastStep = step === steps.length - 1;
+  const totalSteps = steps.length;
+  const isLastStep = step === totalSteps;
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Step Indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          {steps.map((s, i) => (
-            <div key={i} className="flex-1 flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${
-                  i <= step
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {i + 1}
-              </div>
-              {i < steps.length - 1 && (
-                <div
-                  className={`flex-1 h-1 mx-2 ${
-                    i < step ? "bg-primary" : "bg-muted"
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
+      {/* Step Progress Bar */}
+      {step >= 1 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-foreground">
+              Passo {step} de {totalSteps}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {steps[step - 1]?.title}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-300"
+              style={{ width: `${(step / totalSteps) * 100}%` }}
+            />
+          </div>
         </div>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-foreground">{steps[step]?.title}</h2>
-          <p className="text-muted-foreground">{steps[step]?.desc}</p>
+      )}
+
+      {/* Step Title */}
+      {step >= 1 && step <= totalSteps && (
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-foreground">{steps[step - 1]?.title}</h2>
+          <p className="text-muted-foreground mt-1">{steps[step - 1]?.desc}</p>
         </div>
-      </div>
+      )}
 
       {/* Form Content */}
-      <Card className="bg-white border border-border rounded-lg p-8 mb-8">
-        {/* Step 0: Type Selection - Only show if no orderType provided */}
+      <Card className="bg-white border border-border rounded-xl p-8 mb-6">
+        {/* Step 0: Type Selection */}
         {step === 0 && !orderType && (
           <div className="space-y-4">
-            <p className="text-foreground mb-6">Selecione o tipo de ordem que deseja criar:</p>
+            <p className="text-foreground mb-6">Selecione o tipo de ordem:</p>
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => handleTypeSelect("OS")}
-                className="p-6 border-2 border-border rounded-lg hover:border-primary hover:bg-blue-50 transition-all"
+                className="p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-blue-50 transition-all"
               >
                 <div className="text-2xl font-bold text-primary mb-2">OS</div>
                 <div className="font-semibold text-foreground">Ordem de Serviço</div>
@@ -157,7 +220,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
               </button>
               <button
                 onClick={() => handleTypeSelect("OC")}
-                className="p-6 border-2 border-border rounded-lg hover:border-primary hover:bg-blue-50 transition-all"
+                className="p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-blue-50 transition-all"
               >
                 <div className="text-2xl font-bold text-primary mb-2">OC</div>
                 <div className="font-semibold text-foreground">Ordem de Compra</div>
@@ -167,43 +230,44 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           </div>
         )}
 
-        {/* Step 1: Categoria (OS) or Contrato (OC) */}
+        {/* OS Step 1: Categoria | OC Step 1: Contrato */}
         {step === 1 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
-              <>
-                <label className="block">
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Tipo de OS</span>
-                  <select
-                    value={formData.categoria}
-                    onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="">Selecione uma categoria</option>
-                    <option value="Preventiva">Preventiva</option>
-                    <option value="Corretiva">Corretiva</option>
-                    <option value="Reforma">Reforma</option>
-                  </select>
-                </label>
-              </>
+              <label className="block">
+                <span className="text-sm font-semibold text-foreground mb-2 block">Tipo de OS</span>
+                <div className="grid grid-cols-3 gap-3">
+                  {["Preventiva", "Corretiva", "Reforma"].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setFormData({ ...formData, categoria: cat })}
+                      className={`p-4 border-2 rounded-xl text-center transition-all ${
+                        formData.categoria === cat
+                          ? "border-primary bg-blue-50 text-primary font-semibold"
+                          : "border-border hover:border-primary/50 text-foreground"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </label>
             ) : (
-              <>
-                <label className="block">
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Contrato</span>
-                  <input
-                    type="text"
-                    value={formData.contrato}
-                    onChange={(e) => setFormData({ ...formData, contrato: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Informe o contrato"
-                  />
-                </label>
-              </>
+              <label className="block">
+                <span className="text-sm font-semibold text-foreground mb-2 block">Contrato</span>
+                <input
+                  type="text"
+                  value={formData.contrato}
+                  onChange={(e) => setFormData({ ...formData, contrato: e.target.value })}
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  placeholder="Informe o número do contrato"
+                />
+              </label>
             )}
           </div>
         )}
 
-        {/* Step 2: Contrato (OS) or Placa (OC) */}
+        {/* OS Step 2: Contrato | OC Step 2: Placa */}
         {step === 2 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
@@ -213,8 +277,8 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                   type="text"
                   value={formData.contrato}
                   onChange={(e) => setFormData({ ...formData, contrato: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Informe o contrato"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  placeholder="Informe o número do contrato"
                 />
               </label>
             ) : (
@@ -224,7 +288,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                   type="text"
                   value={formData.placa}
                   onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
                   placeholder="Ex: ABC-1234"
                 />
               </label>
@@ -232,7 +296,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           </div>
         )}
 
-        {/* Step 3: Placa (OS) or Fotos (OC) */}
+        {/* OS Step 3: Placa | OC Step 3: Fotos */}
         {step === 3 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
@@ -242,37 +306,43 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                   type="text"
                   value={formData.placa}
                   onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
                   placeholder="Ex: ABC-1234"
                 />
               </label>
             ) : (
               <div>
-                <span className="text-sm font-semibold text-foreground mb-2 block">Envie as fotos/evidências</span>
-                <label className="border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                <span className="text-sm font-semibold text-foreground mb-3 block">Envie as fotos/evidências</span>
+                <label className="border-2 border-dashed border-border rounded-xl p-8 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
                   <input
                     type="file"
-                    multiple
                     accept="image/*"
+                    multiple
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                  <div className="text-center">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Clique para enviar fotos</p>
-                  </div>
+                  <Camera className="w-10 h-10 text-muted-foreground mb-3" />
+                  <span className="text-sm font-semibold text-foreground">Clique para enviar fotos</span>
+                  <span className="text-xs text-muted-foreground mt-1">JPG, PNG ou GIF</span>
                 </label>
-                {images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {images.map((img, i) => (
-                      <div key={i} className="relative bg-muted rounded p-2">
-                        <div className="text-xs text-muted-foreground truncate">{img.name}</div>
+                {imagePreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    {imagePreviews.map((preview, i) => (
+                      <div key={i} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Foto ${i + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-border"
+                        />
                         <button
                           onClick={() => removeImage(i)}
-                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
+                        <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                          {i === 0 ? "Frontal" : i === 1 ? "KM" : `Foto ${i + 1}`}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -282,36 +352,44 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           </div>
         )}
 
-        {/* Step 4: Fotos (OS) or KM (OC) */}
+        {/* OS Step 4: Fotos | OC Step 4: KM */}
         {step === 4 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
               <div>
-                <span className="text-sm font-semibold text-foreground mb-2 block">Envie as fotos (frontal + KM/Horímetro)</span>
-                <label className="border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                <span className="text-sm font-semibold text-foreground mb-3 block">
+                  Envie as fotos (frontal do veículo + KM/Horímetro)
+                </span>
+                <label className="border-2 border-dashed border-border rounded-xl p-8 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
                   <input
                     type="file"
-                    multiple
                     accept="image/*"
+                    multiple
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                  <div className="text-center">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Clique para enviar fotos</p>
-                  </div>
+                  <Camera className="w-10 h-10 text-muted-foreground mb-3" />
+                  <span className="text-sm font-semibold text-foreground">Clique para enviar fotos</span>
+                  <span className="text-xs text-muted-foreground mt-1">JPG, PNG ou GIF</span>
                 </label>
-                {images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-2">
-                    {images.map((img, i) => (
-                      <div key={i} className="relative bg-muted rounded p-2">
-                        <div className="text-xs text-muted-foreground truncate">{img.name}</div>
+                {imagePreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    {imagePreviews.map((preview, i) => (
+                      <div key={i} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Foto ${i + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-border"
+                        />
                         <button
                           onClick={() => removeImage(i)}
-                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
+                        <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                          {i === 0 ? "Frontal" : i === 1 ? "KM" : `Foto ${i + 1}`}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -321,29 +399,29 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
               <label className="block">
                 <span className="text-sm font-semibold text-foreground mb-2 block">KM/Horímetro</span>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.km}
                   onChange={(e) => setFormData({ ...formData, km: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Ex: 12345"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  placeholder="Informe o KM ou Horímetro atual"
                 />
               </label>
             )}
           </div>
         )}
 
-        {/* Step 5: KM (OS) or Informe (OC) */}
+        {/* OS Step 5: KM | OC Step 5: Informe */}
         {step === 5 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
               <label className="block">
                 <span className="text-sm font-semibold text-foreground mb-2 block">KM/Horímetro</span>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.km}
                   onChange={(e) => setFormData({ ...formData, km: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Ex: 12345"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  placeholder="Informe o KM ou Horímetro atual"
                 />
               </label>
             ) : (
@@ -352,147 +430,202 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                 <textarea
                   value={formData.informe}
                   onChange={(e) => setFormData({ ...formData, informe: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-32"
-                  placeholder="Descreva o motivo, avaria, sintoma e observações"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-h-[150px] resize-none"
+                  placeholder="Descreva detalhadamente o motivo da solicitação..."
                 />
               </label>
             )}
           </div>
         )}
 
-        {/* Step 6: Informe (OS) or Orçamento (OC) */}
+        {/* OS Step 6: Informe | OC Step 6: Orçamento */}
         {step === 6 && (
           <div className="space-y-4">
             {formData.type === "OS" ? (
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Informe Técnico Obrigatório</span>
+                <span className="text-sm font-semibold text-foreground mb-2 block">Informe Técnico</span>
                 <textarea
                   value={formData.informe}
                   onChange={(e) => setFormData({ ...formData, informe: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-32"
-                  placeholder="- Motivo:\n- Avaria (Sim/Não):\n- Sintoma/Observação:\n- Veículo está parado? (Sim/Não):"
+                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-h-[150px] resize-none"
+                  placeholder="Descreva detalhadamente o motivo da solicitação e o serviço necessário..."
                 />
               </label>
             ) : (
               <div className="space-y-4">
+                <label className="block">
+                  <span className="text-sm font-semibold text-foreground mb-2 block">Valor Total do Orçamento</span>
+                  <input
+                    type="text"
+                    value={formData.totalValue}
+                    onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    placeholder="R$ 0,00"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-foreground mb-2 block">Descrição do Orçamento</span>
+                  <textarea
+                    value={formData.orcamento}
+                    onChange={(e) => setFormData({ ...formData, orcamento: e.target.value })}
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-h-[100px] resize-none"
+                    placeholder="Descreva os itens do orçamento ou cole o texto aqui..."
+                  />
+                </label>
                 <div>
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Orçamento (Foto/PDF)</span>
-                  <label className="border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                  <span className="text-sm font-semibold text-foreground mb-2 block">Ou envie o arquivo do orçamento</span>
+                  <label className="border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
                     <input
                       type="file"
                       accept="image/*,.pdf"
                       onChange={handleBudgetUpload}
                       className="hidden"
                     />
-                    <div className="text-center">
-                      <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">Clique para enviar orçamento</p>
-                    </div>
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-foreground">
+                      {budgetFile ? budgetFile.name : "Clique para enviar"}
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-1">PDF ou imagem</span>
                   </label>
-                  {budgetFile && (
-                    <div className="mt-2 p-2 bg-muted rounded text-sm">
-                      ✓ {budgetFile.name}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-foreground mb-2 block">Ou descreva o orçamento em texto</span>
-                  <textarea
-                    value={formData.orcamento}
-                    onChange={(e) => setFormData({ ...formData, orcamento: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-24"
-                    placeholder="Empresa, CNPJ, forma de pagamento, prazo, dados bancários..."
-                  />
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* Step 7: Resumo */}
+        {/* Step 7 (OS) / Step 7 (OC): Resumo */}
         {step === 7 && (
-          <div className="space-y-4">
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Tipo:</span>
-                <span className="font-semibold">{formData.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"}</span>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Check className="w-5 h-5 text-green-600" />
+              <h3 className="text-lg font-bold text-foreground">Resumo da Solicitação</h3>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Tipo</span>
+                  <p className="font-semibold text-foreground mt-1">
+                    {formData.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"}
+                  </p>
+                </div>
+                {formData.type === "OS" && (
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Categoria</span>
+                    <p className="font-semibold text-foreground mt-1">{formData.categoria}</p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Contrato</span>
+                  <p className="font-semibold text-foreground mt-1">{formData.contrato}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Placa</span>
+                  <p className="font-semibold text-foreground mt-1">{formData.placa}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">KM/Horímetro</span>
+                  <p className="font-semibold text-foreground mt-1">{formData.km}</p>
+                </div>
+                {formData.type === "OC" && formData.totalValue && (
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Valor Total</span>
+                    <p className="font-semibold text-foreground mt-1">{formData.totalValue}</p>
+                  </div>
+                )}
               </div>
-              {formData.type === "OS" && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Categoria:</span>
-                  <span className="font-semibold">{formData.categoria}</span>
+
+              <div className="border-t border-border pt-4">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Informe Técnico</span>
+                <p className="text-foreground mt-1">{formData.informe}</p>
+              </div>
+
+              {formData.type === "OC" && formData.orcamento && (
+                <div className="border-t border-border pt-4">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Orçamento</span>
+                  <p className="text-foreground mt-1">{formData.orcamento}</p>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Contrato:</span>
-                <span className="font-semibold">{formData.contrato}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Placa:</span>
-                <span className="font-semibold">{formData.placa}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">KM/Horímetro:</span>
-                <span className="font-semibold">{formData.km}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Fotos:</span>
-                <span className="font-semibold">{images.length}</span>
-              </div>
+
+              {imagePreviews.length > 0 && (
+                <div className="border-t border-border pt-4">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+                    Fotos ({images.length})
+                  </span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {imagePreviews.map((preview, i) => (
+                      <img
+                        key={i}
+                        src={preview}
+                        alt={`Foto ${i + 1}`}
+                        className="w-full h-16 object-cover rounded-lg border border-border"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {budgetFile && (
+                <div className="border-t border-border pt-4">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Arquivo do Orçamento</span>
+                  <p className="text-foreground mt-1 flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    {budgetFile.name}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
       </Card>
 
       {/* Navigation Buttons */}
-      <div className="flex gap-4 justify-between">
-        <Button
-          onClick={onClose}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <X className="w-4 h-4" />
-          Cancelar
-        </Button>
+      {step >= 1 && (
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (step === 1 && orderType) {
+                onClose();
+              } else {
+                setStep(step - 1);
+              }
+            }}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Voltar
+          </Button>
 
-        <div className="flex gap-4">
-          {step > 0 && (
-            <Button
-              onClick={() => setStep(step - 1)}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
-          )}
-
-          {!isLastStep ? (
-            <Button
-              onClick={handleNext}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2"
-            >
-              Próximo
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          ) : (
+          {step === 7 ? (
             <Button
               onClick={handleSubmit}
-              disabled={createOrderMutation.isPending}
-              className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+              disabled={isSubmitting}
+              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
             >
-              {createOrderMutation.isPending ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Enviando...
                 </>
               ) : (
-                "Confirmar"
+                <>
+                  <Check className="w-4 h-4" />
+                  Confirmar Solicitação
+                </>
               )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleNext}
+              className="bg-primary text-primary-foreground flex items-center gap-2"
+            >
+              Próximo
+              <ChevronRight className="w-4 h-4" />
             </Button>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

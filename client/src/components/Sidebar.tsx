@@ -2,9 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import {
-  ChevronDown,
   Home,
-  FileText,
   CheckSquare,
   BarChart3,
   Users,
@@ -12,32 +10,16 @@ import {
   LogOut,
   Menu,
   X,
+  Wrench,
+  ShoppingCart,
+  ClipboardList,
+  FileText,
 } from "lucide-react";
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  label: string;
-  href?: string;
-  onClick?: () => void;
-  children?: MenuItemProps[];
-}
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
-    solicitations: true,
-    management: false,
-    admin: false,
-  });
-
-  const toggleMenu = (key: string) => {
-    setExpandedMenus((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
 
   const handleLogout = async () => {
     await logout();
@@ -92,12 +74,12 @@ export default function Sidebar() {
           {/* Dashboard */}
           <button
             onClick={() => {
-              setLocation(user?.role === "admin" ? "/admin/dashboard" : "/orders");
+              setLocation(user?.role === "admin" ? "/admin/dashboard" : "/my-orders");
               setSidebarOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-              isActive(user?.role === "admin" ? "/admin/dashboard" : "/orders")
-                ? "bg-blue-100 text-primary"
+              isActive(user?.role === "admin" ? "/admin/dashboard" : "/my-orders")
+                ? "bg-blue-50 text-primary"
                 : "text-foreground hover:bg-muted"
             }`}
           >
@@ -117,9 +99,13 @@ export default function Sidebar() {
                 setLocation("/form/os");
                 setSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                isActive("/form/os")
+                  ? "bg-blue-50 text-primary"
+                  : "text-foreground hover:bg-muted"
+              }`}
             >
-              <FileText className="w-5 h-5 text-primary" />
+              <Wrench className="w-5 h-5 text-blue-500" />
               <span>Ordem de Serviço</span>
             </button>
 
@@ -129,9 +115,13 @@ export default function Sidebar() {
                 setLocation("/form/oc");
                 setSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                isActive("/form/oc")
+                  ? "bg-blue-50 text-primary"
+                  : "text-foreground hover:bg-muted"
+              }`}
             >
-              <FileText className="w-5 h-5 text-primary" />
+              <ShoppingCart className="w-5 h-5 text-purple-500" />
               <span>Ordem de Compra</span>
             </button>
 
@@ -141,9 +131,13 @@ export default function Sidebar() {
                 setLocation("/my-orders");
                 setSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                isActive("/my-orders")
+                  ? "bg-blue-50 text-primary"
+                  : "text-foreground hover:bg-muted"
+              }`}
             >
-              <FileText className="w-5 h-5 text-primary" />
+              <ClipboardList className="w-5 h-5 text-green-500" />
               <span>Minhas Solicitações</span>
             </button>
           </div>
@@ -162,11 +156,11 @@ export default function Sidebar() {
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 isActive("/checklist")
-                  ? "bg-blue-100 text-primary"
+                  ? "bg-blue-50 text-primary"
                   : "text-foreground hover:bg-muted"
               }`}
             >
-              <CheckSquare className="w-5 h-5" />
+              <CheckSquare className="w-5 h-5 text-emerald-500" />
               <span>Checklist</span>
             </button>
 
@@ -178,11 +172,11 @@ export default function Sidebar() {
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 isActive("/users")
-                  ? "bg-blue-100 text-primary"
+                  ? "bg-blue-50 text-primary"
                   : "text-foreground hover:bg-muted"
               }`}
             >
-              <Users className="w-5 h-5" />
+              <Users className="w-5 h-5 text-orange-500" />
               <span>Usuários</span>
             </button>
           </div>
@@ -202,11 +196,11 @@ export default function Sidebar() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive("/admin/dashboard")
-                    ? "bg-blue-100 text-primary"
+                    ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
               >
-                <BarChart3 className="w-5 h-5" />
+                <BarChart3 className="w-5 h-5 text-indigo-500" />
                 <span>Dashboard</span>
               </button>
 
@@ -218,11 +212,11 @@ export default function Sidebar() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive("/admin/orders")
-                    ? "bg-blue-100 text-primary"
+                    ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 text-red-500" />
                 <span>Gerenciar Ordens</span>
               </button>
 
@@ -234,11 +228,11 @@ export default function Sidebar() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive("/admin/reports")
-                    ? "bg-blue-100 text-primary"
+                    ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
               >
-                <BarChart3 className="w-5 h-5" />
+                <BarChart3 className="w-5 h-5 text-teal-500" />
                 <span>Relatórios</span>
               </button>
 
@@ -250,11 +244,11 @@ export default function Sidebar() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   isActive("/admin/settings")
-                    ? "bg-blue-100 text-primary"
+                    ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-5 h-5 text-gray-500" />
                 <span>Configurações</span>
               </button>
             </div>
