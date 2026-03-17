@@ -58,12 +58,12 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 overflow-y-auto ${
+        className={`fixed left-0 top-0 h-screen bg-white border-r border-border transition-all duration-300 z-40 overflow-y-auto flex flex-col ${
           sidebarOpen ? "w-64" : "w-0 md:w-64"
         } md:w-64`}
       >
         {/* Logo Section */}
-        <div className="p-6 border-b border-border">
+        <div className="p-6 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg">
               OC
@@ -76,7 +76,7 @@ export default function Sidebar() {
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex-shrink-0">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Usuário
           </p>
@@ -87,8 +87,8 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Menu Items */}
-        <nav className="p-4 space-y-2">
+        {/* Menu Items - Scrollable */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
           {/* Dashboard */}
           <button
             onClick={() => {
@@ -273,11 +273,11 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* Logout Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-white">
+        {/* Logout Button - Fixed at Bottom */}
+        <div className="p-4 border-t border-border bg-white flex-shrink-0">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-muted text-foreground font-semibold hover:bg-blue-100 hover:text-primary transition-colors rounded-lg"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-muted text-foreground font-semibold hover:bg-red-100 hover:text-red-600 transition-colors rounded-lg"
           >
             <LogOut className="w-4 h-4" />
             Sair
