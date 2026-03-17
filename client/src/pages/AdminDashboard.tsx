@@ -7,7 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import MainLayout from "@/components/MainLayout";
 
 export default function AdminDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth() || { user: null, loading: true };
   const [, setLocation] = useLocation();
   const { data: stats, isLoading } = trpc.admin.stats.useQuery();
 
