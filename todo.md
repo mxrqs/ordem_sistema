@@ -156,3 +156,12 @@
 - [x] Implementar modal de confirmação antes de deletar
 - [x] Testar permissões e segurança
 - [x] Verificar cascata de deleção (fotos, PDFs)
+
+
+## Bug Fixes - Sprint 2
+
+### Bug: API returns HTML instead of JSON on /my-orders
+- [x] Identificar a causa: race condition no render com setLocation
+- [x] Implementar useEffect para redirecionamento
+- [x] Adicionar enabled condicional na query tRPC
+- [x] Testar a página /my-orders

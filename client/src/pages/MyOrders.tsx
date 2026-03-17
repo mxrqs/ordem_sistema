@@ -19,7 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function PhotoGallery({ orderId }: { orderId: number }) {
   const { data: photos, isLoading } = trpc.orders.getPhotos.useQuery({ orderId });
@@ -103,8 +103,17 @@ function PhotoGallery({ orderId }: { orderId: number }) {
 export default function MyOrders() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
-  const { data: orders, isLoading } = trpc.orders.myOrders.useQuery();
+  const { data: orders, isLoading } = trpc.orders.myOrders.useQuery(undefined, {
+    enabled: !!user && !authLoading,
+  });
   const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setLocation("/");
+    }
+  }, [authLoading, user, setLocation]);
 
   if (authLoading || isLoading) {
     return (
@@ -117,7 +126,6 @@ export default function MyOrders() {
   }
 
   if (!user) {
-    setLocation("/");
     return null;
   }
 
