@@ -165,3 +165,10 @@
 - [x] Implementar useEffect para redirecionamento
 - [x] Adicionar enabled condicional na query tRPC
 - [x] Testar a página /my-orders
+
+
+### Bug: Order deletion mutation fails intermittently
+- [x] Adicionar logging detalhado para diagnosticar o problema
+- [x] Testar deleção múltiplas vezes para confirmar funcionamento
+- [x] Remover logging de debug
+- [x] Verificar cascata de deleção (fotos, itens)
