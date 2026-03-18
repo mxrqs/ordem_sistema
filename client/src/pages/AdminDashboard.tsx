@@ -106,7 +106,9 @@ export default function AdminDashboard() {
                     Média por Mês
                   </p>
                   <p className="text-4xl font-bold text-foreground">
-                    {stats?.byMonth ? Math.round(Object.values(stats.byMonth).reduce((a, b) => a + b, 0) / Object.values(stats.byMonth).length) : 0}
+                    {stats?.byMonth && Object.keys(stats.byMonth).length > 0 
+                      ? Math.round(Object.values(stats.byMonth).reduce((a, b) => a + b, 0) / Object.keys(stats.byMonth).length) 
+                      : 0}
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
