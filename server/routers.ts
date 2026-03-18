@@ -168,6 +168,35 @@ export const appRouter = router({
         }
       }),
 
+    // Update order number (OS or OC number)
+    updateOrderNumber: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        osNumber: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          await db.update(orders).set({ osNumber: input.osNumber }).where(eq(orders.id, input.orderId));
+
+          return { success: true };
+        } catch (error) {
+          console.error("Error updating order number:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        }
+      }),
+
     // Upload photos for order
     uploadPhoto: protectedProcedure
       .input(z.object({

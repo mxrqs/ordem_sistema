@@ -111,6 +111,7 @@ export default function AdminOrders() {
   const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set()); // Filter by status
+  const [editingOrderNumber, setEditingOrderNumber] = useState<{ orderId: number; value: string } | null>(null);
   const ITEMS_PER_PAGE = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -139,6 +140,16 @@ export default function AdminOrders() {
     },
     onError: () => {
       toast.error("Erro ao enviar PDF");
+    },
+  });
+  const updateOrderNumberMutation = trpc.orders.updateOrderNumber.useMutation({
+    onSuccess: () => {
+      utils.orders.all.invalidate();
+      setEditingOrderNumber(null);
+      toast.success("Número da ordem atualizado com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar número da ordem");
     },
   });
   const deleteOrderMutation = trpc.orders.delete.useMutation({
@@ -469,17 +480,34 @@ export default function AdminOrders() {
 
                       <div className="h-6 w-px bg-border" />
 
-                      {/* OS Number Input */}
-                      {order.type === "OS" && (
+                      {/* OS/OC Number Input */}
+                      {(order.type === "OS" || order.type === "OC") && (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OS:</span>
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{order.type}:</span>
                           <input
                             type="text"
-                            value={order.osNumber || ''}
-                            placeholder="Informe o numero da OS"
+                            value={editingOrderNumber?.orderId === order.id ? editingOrderNumber.value : (order.osNumber || '')}
+                            placeholder={`Informe o numero da ${order.type}`}
+                            onChange={(e) => setEditingOrderNumber({ orderId: order.id, value: e.target.value })}
+                            onBlur={() => {
+                              if (editingOrderNumber?.orderId === order.id && editingOrderNumber.value !== (order.osNumber || '')) {
+                                updateOrderNumberMutation.mutate({ orderId: order.id, osNumber: editingOrderNumber.value });
+                              } else {
+                                setEditingOrderNumber(null);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                (e.target as HTMLInputElement).blur();
+                              } else if (e.key === 'Escape') {
+                                setEditingOrderNumber(null);
+                              }
+                            }}
                             className="text-sm px-2 py-1 border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            disabled
                           />
+                          {updateOrderNumberMutation.isPending && editingOrderNumber?.orderId === order.id && (
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                          )}
                         </div>
                       )}
 

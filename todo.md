@@ -283,3 +283,13 @@
 - [ ] Testar: Solicitante vê ordem em Minhas Solicitações
 - [ ] Testar: Solicitante preenche checklist em step-by-step
 - [ ] Testar: Fluxo completo em desktop e mobile
+
+
+## Bug Fixes - Sprint 5
+
+### Bug: OS/OC number field not editable in AdminOrders
+- [x] Replace placeholder text with editable input field for OS number
+- [x] Add same editable input for OC number in AdminOrders
+- [x] Implement mutation to save OS/OC number when edited
+- [x] Add visual feedback (loading state) while saving
+- [x] Test editing and saving OS/OC numbers
