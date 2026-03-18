@@ -172,3 +172,10 @@
 - [x] Testar deleção múltiplas vezes para confirmar funcionamento
 - [x] Remover logging de debug
 - [x] Verificar cascata de deleção (fotos, itens)
+
+
+### Bug: API returns HTML instead of JSON on /form/os and /form/oc
+- [x] Identificar a causa: race condition no render com setLocation
+- [x] Implementar useEffect para redirecionamento em FormOS.tsx
+- [x] Implementar useEffect para redirecionamento em FormOC.tsx
+- [x] Testar as páginas /form/os e /form/oc

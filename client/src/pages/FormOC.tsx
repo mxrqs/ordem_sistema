@@ -1,12 +1,19 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import MainLayout from "@/components/MainLayout";
 import OrderForm from "@/components/OrderForm";
 
 export default function FormOC() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setLocation("/");
+    }
+  }, [user, authLoading, setLocation]);
 
   if (authLoading) {
     return (
@@ -19,7 +26,6 @@ export default function FormOC() {
   }
 
   if (!user) {
-    setLocation("/");
     return null;
   }
 
