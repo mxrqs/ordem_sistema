@@ -107,6 +107,8 @@ export default function MyOrders() {
     enabled: !!user && !authLoading,
   });
   const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -114,6 +116,11 @@ export default function MyOrders() {
       setLocation("/");
     }
   }, [authLoading, user, setLocation]);
+
+  // Reset to page 1 when changing tabs
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   if (authLoading || isLoading) {
     return (
@@ -171,6 +178,13 @@ export default function MyOrders() {
   const filteredOrders = orders?.filter((order) => order.type === activeTab) || [];
   const osCount = orders?.filter((o) => o.type === "OS").length || 0;
   const ocCount = orders?.filter((o) => o.type === "OC").length || 0;
+
+  // Paginate orders
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <MainLayout>
@@ -232,8 +246,9 @@ export default function MyOrders() {
 
           {/* Orders List */}
           {filteredOrders.length > 0 ? (
+            <>
             <div className="space-y-4">
-              {filteredOrders.map((order) => (
+              {paginatedOrders.map((order) => (
                 <Card
                   key={order.id}
                   className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow"
@@ -349,6 +364,43 @@ export default function MyOrders() {
                 </Card>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8">
+                <Button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  className="px-3"
+                >
+                  Anterior
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = currentPage > 3 ? currentPage - 2 + i : i + 1;
+                  if (pageNum > totalPages) return null;
+                  return (
+                    <Button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      className="px-3"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+                <Button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  className="px-3"
+                >
+                  Próximo
+                </Button>
+              </div>
+            )}
+            </>
           ) : (
             <div className="text-center py-16">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
