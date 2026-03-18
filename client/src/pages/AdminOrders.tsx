@@ -110,6 +110,7 @@ export default function AdminOrders() {
   const [uploadingOrderId, setUploadingOrderId] = useState<number | null>(null);
   const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set()); // Filter by status
   const ITEMS_PER_PAGE = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -165,8 +166,14 @@ export default function AdminOrders() {
     return null;
   }
 
-  // Filter orders by type and sort by creation date (newest first)
+  // Filter orders by type, status, and sort by creation date (newest first)
   let filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
+  
+  // Apply status filters if any are selected
+  if (statusFilters.size > 0) {
+    filteredOrders = filteredOrders.filter((order) => statusFilters.has(order.status));
+  }
+  
   filteredOrders = [...filteredOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   // Paginate orders
@@ -295,6 +302,48 @@ export default function AdminOrders() {
             </button>
           </div>
 
+          {/* Status Filters */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-border">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="font-semibold text-foreground">Filtrar por Status:</span>
+              {[
+                { value: "not_started", label: "Não Iniciada" },
+                { value: "in_process", label: "Em Processo" },
+                { value: "completed", label: "Concluída" },
+              ].map((status) => (
+                <label key={status.value} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={statusFilters.has(status.value)}
+                    onChange={(e) => {
+                      const newFilters = new Set(statusFilters);
+                      if (e.target.checked) {
+                        newFilters.add(status.value);
+                      } else {
+                        newFilters.delete(status.value);
+                      }
+                      setStatusFilters(newFilters);
+                      setCurrentPage(1); // Reset to page 1 when filtering
+                    }}
+                    className="w-4 h-4 rounded border-border cursor-pointer"
+                  />
+                  <span className="text-sm text-foreground">{status.label}</span>
+                </label>
+              ))}
+              {statusFilters.size > 0 && (
+                <button
+                  onClick={() => {
+                    setStatusFilters(new Set());
+                    setCurrentPage(1);
+                  }}
+                  className="text-sm text-primary hover:underline ml-2"
+                >
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+          </div>
+
            {/* Orders List */}
            {filteredOrders.length > 0 ? (
              <div className="space-y-4">
@@ -420,17 +469,17 @@ export default function AdminOrders() {
 
                       <div className="h-6 w-px bg-border" />
 
-                      {/* OS Number */}
-                      {order.type === "OS" && order.osNumber && (
+                      {/* OS Number Input */}
+                      {order.type === "OS" && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OS:</span>
-                          <span className="text-sm font-medium text-foreground">{order.osNumber}</span>
-                        </div>
-                      )}
-                      {order.type === "OS" && !order.osNumber && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OS:</span>
-                          <span className="text-sm text-yellow-600">Não informado</span>
+                          <input
+                            type="text"
+                            value={order.osNumber || ''}
+                            placeholder="Informe o numero da OS"
+                            className="text-sm px-2 py-1 border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            disabled
+                          />
                         </div>
                       )}
 

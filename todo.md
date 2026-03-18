@@ -225,3 +225,25 @@
 - [x] Ordenar solicitações em MyOrders por data de criação (mais recente primeiro)
 - [x] Ordenar solicitações em AdminOrders por data de criação (mais recente primeiro)
 - [x] Testar ordenação após criar novas solicitações
+
+
+## Alterações Solicitadas - Sprint 4
+
+### Alteração 1 - Filtros de Status em AdminOrders
+- [x] Adicionar filtros de status (Não Iniciada, Em Processo, Concluída) na página AdminOrders
+- [x] Implementar UI com checkboxes ou dropdown para filtros de status
+- [x] Aplicar filtros em tempo real na lista de solicitações
+- [x] Testar combinação de filtros com paginação
+
+### Alteração 2 - Tipos de Arquivo para Orçamento (OC)
+- [x] Restringir upload de fotos/orçamento no FormOC para apenas mídia (jpg, png, jpeg, gif) e PDF
+- [x] Adicionar validação no frontend para tipos de arquivo aceitos
+- [x] Exibir mensagem de erro se arquivo não for aceito
+- [x] Testar upload com diferentes tipos de arquivo
+
+### Alteração 3 - OS Informado pelo Admin
+- [x] Remover campo "Número Real da OS" do FormOS (passo 2)
+- [x] Adicionar campo "Número Real da OS" em AdminOrders para o admin preencher
+- [x] Implementar mutation tRPC para salvar número da OS
+- [x] Exibir campo como input editável em AdminOrders
+- [x] Testar preenchimento e salvamento do número da OS

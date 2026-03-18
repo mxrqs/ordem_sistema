@@ -78,7 +78,15 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
 
   const handleBudgetUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
-      setBudgetFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      
+      if (!acceptedTypes.includes(file.type)) {
+        toast.error('Apenas arquivos de mídia (JPG, PNG, GIF, WebP) e PDF são aceitos');
+        return;
+      }
+      
+      setBudgetFile(file);
     }
   };
 
@@ -301,16 +309,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                   placeholder="Informe o número do contrato"
                 />
               </label>
-              <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Número Real da OS</span>
-                <input
-                  type="text"
-                  value={formData.osNumber}
-                  onChange={(e) => setFormData({ ...formData, osNumber: e.target.value })}
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  placeholder="Ex: OS-2024-001"
-                />
-              </label>
+
               </>
             ) : (
               <label className="block">
@@ -514,7 +513,7 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
                       <label className="border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
                         <input
                           type="file"
-                          accept="image/*,.pdf"
+                          accept="image/jpeg,image/png,image/gif,image/webp,.pdf"
                           onChange={handleBudgetUpload}
                           className="hidden"
                         />
