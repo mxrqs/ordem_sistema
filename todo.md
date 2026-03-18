@@ -179,3 +179,9 @@
 - [x] Implementar useEffect para redirecionamento em FormOS.tsx
 - [x] Implementar useEffect para redirecionamento em FormOC.tsx
 - [x] Testar as páginas /form/os e /form/oc
+
+
+### Bug: API returns HTML instead of JSON on /admin/orders
+- [x] Identificar a causa: race condition no render com setLocation
+- [x] Implementar useEffect para redirecionamento em AdminOrders.tsx
+- [x] Testar a página /admin/orders

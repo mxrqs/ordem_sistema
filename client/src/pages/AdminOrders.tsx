@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Loader2,
   FileUp,
@@ -111,6 +111,12 @@ export default function AdminOrders() {
   const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== "admin")) {
+      setLocation("/");
+    }
+  }, [user, authLoading, setLocation]);
+
   const utils = trpc.useUtils();
   const { data: allOrders, isLoading } = trpc.orders.all.useQuery();
   const updateStatusMutation = trpc.orders.updateStatus.useMutation({
@@ -154,7 +160,6 @@ export default function AdminOrders() {
   }
 
   if (!user || user.role !== "admin") {
-    setLocation("/");
     return null;
   }
 
