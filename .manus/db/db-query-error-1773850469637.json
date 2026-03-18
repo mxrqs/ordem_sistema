@@ -1,0 +1,8 @@
+{
+  "query": "DELETE FROM order_items; DELETE FROM orders;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute DELETE FROM order_items; DELETE FROM orders;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'kypwhkpjafrlckpe6frlbc.order_items' doesn't exist"
+  ]
+}

@@ -34,16 +34,16 @@ export default function FormOS() {
       <div className="bg-white min-h-screen">
         {/* Header */}
         <div className="border-b border-border">
-          <div className="container mx-auto px-8 py-8">
+          <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">Nova Ordem de Serviço</h1>
-              <p className="text-muted-foreground">Preencha os dados abaixo para solicitar uma Ordem de Serviço</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Nova Ordem de Serviço</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Preencha os dados abaixo para solicitar uma Ordem de Serviço</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-8 py-8">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8">
           <OrderForm
             orderType="OS"
             onClose={() => setLocation("/orders")}

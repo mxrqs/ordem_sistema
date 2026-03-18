@@ -204,12 +204,12 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
     <div className="max-w-2xl mx-auto">
       {/* Step Progress Bar */}
       {step >= 1 && (
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-foreground">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-2">
+            <span className="text-xs sm:text-sm font-semibold text-foreground">
               Passo {step} de {totalSteps}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground">
               {steps[step - 1]?.title}
             </span>
           </div>
@@ -224,14 +224,14 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
 
       {/* Step Title */}
       {step >= 1 && step <= totalSteps && (
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground">{steps[step - 1]?.title}</h2>
-          <p className="text-muted-foreground mt-1">{steps[step - 1]?.desc}</p>
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">{steps[step - 1]?.title}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">{steps[step - 1]?.desc}</p>
         </div>
       )}
 
       {/* Form Content */}
-      <Card className="bg-white border border-border rounded-xl p-8 mb-6">
+      <Card className="bg-white border border-border rounded-xl p-4 sm:p-6 md:p-8 mb-6">
         {/* Step 0: Type Selection */}
         {step === 0 && !orderType && (
           <div className="space-y-4">
@@ -262,13 +262,13 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           <div className="space-y-4">
             {formData.type === "OS" ? (
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Tipo de OS</span>
-                <div className="grid grid-cols-3 gap-3">
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-2 block">Tipo de OS</span>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {["Preventiva", "Corretiva", "Reforma"].map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setFormData({ ...formData, categoria: cat })}
-                      className={`p-4 border-2 rounded-xl text-center transition-all ${
+                      className={`p-2 sm:p-4 border-2 rounded-lg sm:rounded-xl text-xs sm:text-sm text-center transition-all ${
                         formData.categoria === cat
                           ? "border-primary bg-blue-50 text-primary font-semibold"
                           : "border-border hover:border-primary/50 text-foreground"
@@ -281,12 +281,12 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
               </label>
             ) : (
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Contrato</span>
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-2 block">Contrato</span>
                 <input
                   type="text"
                   value={formData.contrato}
                   onChange={(e) => setFormData({ ...formData, contrato: e.target.value })}
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   placeholder="Informe o número do contrato"
                 />
               </label>
@@ -300,12 +300,12 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
             {formData.type === "OS" ? (
               <>
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Contrato</span>
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-2 block">Contrato</span>
                 <input
                   type="text"
                   value={formData.contrato}
                   onChange={(e) => setFormData({ ...formData, contrato: e.target.value })}
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   placeholder="Informe o número do contrato"
                 />
               </label>
@@ -313,12 +313,12 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
               </>
             ) : (
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Placa/Matrícula</span>
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-2 block">Placa/Matrícula</span>
                 <input
                   type="text"
                   value={formData.placa}
                   onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
                   placeholder="Ex: ABC-1234"
                 />
               </label>
@@ -331,19 +331,19 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
           <div className="space-y-4">
             {formData.type === "OS" ? (
               <label className="block">
-                <span className="text-sm font-semibold text-foreground mb-2 block">Placa/Matrícula</span>
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-2 block">Placa/Matrícula</span>
                 <input
                   type="text"
                   value={formData.placa}
                   onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary uppercase"
                   placeholder="Ex: ABC-1234"
                 />
               </label>
             ) : (
               <div>
-                <span className="text-sm font-semibold text-foreground mb-3 block">Envie as fotos/evidências</span>
-                <label className="border-2 border-dashed border-border rounded-xl p-8 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
+                <span className="text-xs sm:text-sm font-semibold text-foreground mb-3 block">Envie as fotos/evidências</span>
+                <label className="border-2 border-dashed border-border rounded-lg sm:rounded-xl p-4 sm:p-8 cursor-pointer hover:border-primary transition-colors flex flex-col items-center justify-center">
                   <input
                     type="file"
                     accept="image/*"
