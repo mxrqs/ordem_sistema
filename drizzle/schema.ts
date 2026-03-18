@@ -43,6 +43,7 @@ export const orders = mysqlTable("orders", {
   km: varchar("km", { length: 20 }),
   contrato: varchar("contrato", { length: 100 }),
   categoria: varchar("categoria", { length: 50 }),
+  osNumber: varchar("osNumber", { length: 50 }), // Real OS number
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

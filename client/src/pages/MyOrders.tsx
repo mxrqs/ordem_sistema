@@ -108,6 +108,8 @@ export default function MyOrders() {
   });
   const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [categoriaFilter, setCategoriaFilter] = useState<string>("");
   const ITEMS_PER_PAGE = 10;
 
   // Redirect to home if not authenticated
@@ -175,7 +177,22 @@ export default function MyOrders() {
     }
   };
 
-  const filteredOrders = orders?.filter((order) => order.type === activeTab) || [];
+  // Filter orders by type, status, and categoria
+  let filteredOrders = orders?.filter((order) => order.type === activeTab) || [];
+  
+  // Apply status filters
+  if (statusFilters.length > 0) {
+    filteredOrders = filteredOrders.filter((order) => statusFilters.includes(order.status));
+  }
+  
+  // Apply categoria filter for OS
+  if (activeTab === "OS" && categoriaFilter) {
+    filteredOrders = filteredOrders.filter((order) => order.categoria === categoriaFilter);
+  }
+  
+  // Sort by creation date (newest first)
+  filteredOrders = [...filteredOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  
   const osCount = orders?.filter((o) => o.type === "OS").length || 0;
   const ocCount = orders?.filter((o) => o.type === "OC").length || 0;
 
@@ -212,6 +229,55 @@ export default function MyOrders() {
 
         {/* Content */}
         <div className="container mx-auto px-8 py-8">
+          {/* Filters */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-border">
+            <div className="flex flex-wrap gap-6 items-start">
+              <div>
+                <label className="text-sm font-semibold text-foreground block mb-2">Filtrar por Status:</label>
+                <div className="flex gap-3">
+                  {["not_started", "in_process", "completed"].map((status) => (
+                    <label key={status} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={statusFilters.includes(status)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setStatusFilters([...statusFilters, status]);
+                          } else {
+                            setStatusFilters(statusFilters.filter((s) => s !== status));
+                          }
+                          setCurrentPage(1);
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {status === "not_started" ? "Não Iniciadas" : status === "in_process" ? "Em Processo" : "Concluídas"}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {activeTab === "OS" && (
+                <div>
+                  <label className="text-sm font-semibold text-foreground block mb-2">Filtrar por Categoria:</label>
+                  <select
+                    value={categoriaFilter}
+                    onChange={(e) => {
+                      setCategoriaFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-2 border border-border rounded-lg text-sm"
+                  >
+                    <option value="">Todas as categorias</option>
+                    <option value="Preventiva">Preventiva</option>
+                    <option value="Corretiva">Corretiva</option>
+                    <option value="Reforma">Reforma</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Tabs */}
           <div className="flex gap-6 mb-8 border-b border-border">
             <button

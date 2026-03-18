@@ -36,6 +36,13 @@
       "when": 1773767378666,
       "tag": "0004_gigantic_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1773836049613,
+      "tag": "0005_illegal_magneto",
+      "breakpoints": true
     }
   ]
 }

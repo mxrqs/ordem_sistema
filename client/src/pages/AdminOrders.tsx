@@ -165,8 +165,9 @@ export default function AdminOrders() {
     return null;
   }
 
-  // Filter orders by type
-  const filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
+  // Filter orders by type and sort by creation date (newest first)
+  let filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
+  filteredOrders = [...filteredOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   // Paginate orders
   const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
@@ -416,6 +417,22 @@ export default function AdminOrders() {
                           <option value="completed">Concluída</option>
                         </select>
                       </div>
+
+                      <div className="h-6 w-px bg-border" />
+
+                      {/* OS Number */}
+                      {order.type === "OS" && order.osNumber && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OS:</span>
+                          <span className="text-sm font-medium text-foreground">{order.osNumber}</span>
+                        </div>
+                      )}
+                      {order.type === "OS" && !order.osNumber && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OS:</span>
+                          <span className="text-sm text-yellow-600">Não informado</span>
+                        </div>
+                      )}
 
                       <div className="h-6 w-px bg-border" />
 

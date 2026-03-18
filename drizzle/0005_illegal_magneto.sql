@@ -1,0 +1,1 @@
+ALTER TABLE `orders` ADD `osNumber` varchar(50);

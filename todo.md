@@ -202,3 +202,26 @@
 - [x] Add pagination controls (Previous, page numbers, Next)
 - [x] Reset to page 1 when changing tabs
 - [x] Test pagination stability
+
+
+## Alterações Solicitadas - Sprint 3
+
+### Alteração 1 - Filtros Avançados em MyOrders
+- [x] Adicionar filtros por status (não iniciadas, em processo, concluídas)
+- [x] Adicionar filtro por tipo de OS (Preventiva, Corretiva, Reforma)
+- [x] Implementar UI com checkboxes ou dropdown para filtros
+- [x] Aplicar filtros em tempo real na lista de solicitações
+- [x] Testar combinação de múltiplos filtros
+
+### Alteração 2 - Número Real da OS e Criador em AdminOrders
+- [x] Adicionar campo "Número Real da OS" no formulário FormOS
+- [ ] Adicionar campo "Criador" (quem criou a OS) no banco de dados
+- [x] Exibir "Número Real da OS" em AdminOrders ao lado do upload de PDF
+- [ ] Exibir "Criador" nas solicitações (além do solicitante)
+- [x] Atualizar schema do banco para novos campos
+- [x] Testar preenchimento e exibição dos novos campos
+
+### Alteração 3 - Ordenação por Data de Criação
+- [x] Ordenar solicitações em MyOrders por data de criação (mais recente primeiro)
+- [x] Ordenar solicitações em AdminOrders por data de criação (mais recente primeiro)
+- [x] Testar ordenação após criar novas solicitações

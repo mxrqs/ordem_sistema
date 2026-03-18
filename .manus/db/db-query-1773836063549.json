@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `orders` ADD COLUMN `osNumber` varchar(50) AFTER `categoria`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute ALTER TABLE `orders` ADD COLUMN `osNumber` varchar(50) AFTER `categoria`;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1214
+}
