@@ -413,6 +413,45 @@ export const appRouter = router({
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         }
       }),
+
+    // Create vehicle checklist
+    createVehicleChecklist: protectedProcedure
+      .input(z.object({
+        data: z.object({
+          contrato: z.string(),
+          veiculo: z.string(),
+          placa: z.string(),
+          motorista: z.string(),
+          data: z.string(),
+          kmInicial: z.string(),
+          luzes: z.string(),
+          freios: z.string(),
+          pneus: z.string(),
+          oleo: z.string(),
+          aguaRadiador: z.string(),
+          observacoes: z.string(),
+          fotos: z.record(z.string(), z.string().optional()),
+          assinatura: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          const result = await db.insert(checklists).values({
+            userId: ctx.user.id,
+            title: `Checklist - ${input.data.veiculo} (${input.data.placa})`,
+            description: JSON.stringify(input.data),
+            completed: true,
+          });
+
+          return { id: (result as any).insertId, success: true };
+        } catch (error) {
+          console.error("Error creating vehicle checklist:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        }
+      }),
   }),
 
   users: router({

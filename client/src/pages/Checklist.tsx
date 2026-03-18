@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { Loader2, Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Loader2, Plus, Trash2, CheckCircle2, Circle, Truck } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
+import { useLocation } from "wouter";
 
 export default function Checklist() {
   const { user, loading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -76,6 +78,14 @@ export default function Checklist() {
                 </div>
                 <h1 className="text-headline">Minhas Tarefas</h1>
               </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setLocation("/checklist/vehicle")}
+                className="bg-green-500 text-white px-6 py-3 font-semibold border border-green-500 hover:opacity-90 flex items-center gap-2"
+              >
+                <Truck className="w-4 h-4" />
+                Checklist Veículo
+              </Button>
               <Button
                 onClick={() => setShowForm(!showForm)}
                 className="bg-accent text-accent-foreground px-6 py-3 font-semibold border border-accent hover:opacity-90 flex items-center gap-2"
@@ -83,6 +93,7 @@ export default function Checklist() {
                 <Plus className="w-4 h-4" />
                 Nova Tarefa
               </Button>
+            </div>
             </div>
 
             {/* Progress */}
@@ -215,14 +226,23 @@ export default function Checklist() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="text-center py-12 space-y-4">
               <p className="text-muted-foreground mb-4">Nenhuma tarefa criada</p>
-              <Button
-                onClick={() => setShowForm(true)}
-                className="bg-accent text-accent-foreground px-6 py-3 font-semibold border border-accent hover:opacity-90"
-              >
-                Criar Primeira Tarefa
-              </Button>
+              <div className="flex flex-col gap-3 max-w-xs mx-auto">
+                <Button
+                  onClick={() => setLocation("/checklist/vehicle")}
+                  className="bg-green-500 text-white px-6 py-3 font-semibold border border-green-500 hover:opacity-90 flex items-center justify-center gap-2"
+                >
+                  <Truck className="w-4 h-4" />
+                  Checklist Veículo
+                </Button>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-accent text-accent-foreground px-6 py-3 font-semibold border border-accent hover:opacity-90"
+                >
+                  Criar Primeira Tarefa
+                </Button>
+              </div>
             </div>
           )}
         </div>

@@ -268,8 +268,8 @@
 - [x] Testar em diferentes tamanhos de tela (320px, 375px, 768px)
 
 ### Alteração 3 - Checklist em Step-by-Step
-- [ ] Remover visualização de tabela do Checklist
-- [ ] Criar componente ChecklistForm com multi-step
+- [x] Remover visualização de tabela do Checklist
+- [x] Criar componente VehicleChecklistStep com 5 etapase ChecklistForm com multi-step
 - [ ] Implementar steps: contrato, veículo, placa, motorista, data, km inicial, luzes, freios, pneus, óleo, água, observações, fotos, assinatura
 - [ ] Adicionar botões: Voltar, Avançar, Concluir
 - [ ] Implementar progresso visual (1 de 14, 2 de 14, etc.)
@@ -314,3 +314,18 @@
 - [x] Testar filtros em Ordens de Compra (OC)
 - [x] Verificar que filtros funcionam com paginação
 - [x] Verificar que filtros funcionam com status filters
+
+
+## Alterações Solicitadas - Sprint 7
+
+### Alteração 2 - Transformar Checklist em Formato Step-by-Step
+- [x] Redesenhar página Checklist com navegação step-by-step
+- [x] Criar etapas separadas: Informações do Veículo, Inspeção, Fotos, Observações, Assinatura
+- [x] Implementar componente de navegação (Voltar, Avançar, Concluir)
+- [x] Adicionar indicador de progresso (Etapa N/5 com barra de progresso)
+- [x] Otimizar layout para mobile (full-width, touch-friendly)
+- [x] Implementar captura de fotos (câmera/upload)
+- [x] Implementar assinatura com canvas
+- [x] Testar responsividade em diferentes tamanhos de tela
+- [x] Testar navegação entre etapas
+- [x] Testar persistência de dados ao navegar

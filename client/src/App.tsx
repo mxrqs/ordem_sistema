@@ -10,6 +10,7 @@ import MyOrders from "./pages/MyOrders";
 import FormOS from "./pages/FormOS";
 import FormOC from "./pages/FormOC";
 import Checklist from "./pages/Checklist";
+import ChecklistVehicle from "./pages/ChecklistVehicle";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
 import AdminUsers from "./pages/AdminUsers";
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/form/os"} component={FormOS} />
       <Route path={"/form/oc"} component={FormOC} />
       <Route path={"/checklist"} component={Checklist} />
+      <Route path={"/checklist/vehicle"} component={ChecklistVehicle} />
       <Route path={"/admin/dashboard"} component={AdminDashboard} />
       <Route path={"/admin/orders"} component={AdminOrders} />
       <Route path={"/users"} component={AdminUsers} />
