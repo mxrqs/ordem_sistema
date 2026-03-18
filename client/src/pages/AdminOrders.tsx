@@ -271,8 +271,8 @@ export default function AdminOrders() {
       <div className="bg-white min-h-screen">
         {/* Header */}
         <div className="border-b border-border">
-          <div className="container mx-auto px-8 py-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Gerenciar Solicitações</h1>
+          <div className="w-full px-4 sm:px-6 md:px-8 py-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Gerenciar Solicitações</h1>
             <p className="text-muted-foreground">
               Controle o status das solicitações e envie PDFs para os usuários
             </p>
@@ -280,7 +280,7 @@ export default function AdminOrders() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-8 py-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 py-8">
           {/* Tabs */}
           <div className="flex gap-6 mb-8 border-b border-border">
             <button

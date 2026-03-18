@@ -208,10 +208,10 @@ export default function MyOrders() {
       <div className="bg-white min-h-screen">
         {/* Header */}
         <div className="border-b border-border">
-          <div className="container mx-auto px-8 py-8">
-            <div className="flex items-center justify-between">
+          <div className="w-full px-4 sm:px-6 md:px-8 py-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2">Minhas Solicitações</h1>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Minhas Solicitações</h1>
                 <p className="text-muted-foreground">
                   Acompanhe o status das suas solicitações de Ordem de Serviço e Compra
                 </p>
@@ -228,7 +228,7 @@ export default function MyOrders() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-8 py-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 py-8">
           {/* Filters */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-border">
             <div className="flex flex-wrap gap-6 items-start">
@@ -402,7 +402,7 @@ export default function MyOrders() {
 
                   {/* PDF Section */}
                   <div className="bg-gray-50 border-t border-border px-6 py-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-semibold text-muted-foreground">

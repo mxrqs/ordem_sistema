@@ -259,13 +259,13 @@
 - [ ] Testar que ordem fica visível após admin preencher número
 
 ### Alteração 2 - Layout Responsivo Mobile
-- [ ] Adaptar Sidebar para mobile (menu hamburger ou collapse)
-- [ ] Adaptar FormOS para mobile (campos em tela cheia)
-- [ ] Adaptar FormOC para mobile (campos em tela cheia)
-- [ ] Adaptar MyOrders para mobile (cards em coluna única)
-- [ ] Adaptar AdminOrders para mobile (tabelas em cards)
-- [ ] Adaptar Checklist para mobile (step-by-step view)
-- [ ] Testar em diferentes tamanhos de tela (320px, 375px, 768px)
+- [x] Adaptar Sidebar para mobile (menu hamburger ou collapse)
+- [x] Adaptar FormOS para mobile (campos em tela cheia)
+- [x] Adaptar FormOC para mobile (campos em tela cheia)
+- [x] Adaptar MyOrders para mobile (cards em coluna única)
+- [x] Adaptar AdminOrders para mobile (tabelas em cards)
+- [x] Adaptar Checklist para mobile (step-by-step view)
+- [x] Testar em diferentes tamanhos de tela (320px, 375px, 768px)
 
 ### Alteração 3 - Checklist em Step-by-Step
 - [ ] Remover visualização de tabela do Checklist
@@ -293,3 +293,11 @@
 - [x] Implement mutation to save OS/OC number when edited
 - [x] Add visual feedback (loading state) while saving
 - [x] Test editing and saving OS/OC numbers
+
+
+### Sprint 5 - Mobile Responsiveness Improvements
+- [x] Aplicar responsive padding (px-4 sm:px-6 md:px-8) em MyOrders e AdminOrders
+- [x] Aplicar responsive text sizing (text-2xl sm:text-3xl md:text-4xl) em headings
+- [x] Aplicar responsive button layout (flex-col sm:flex-row) para mobile
+- [x] Testar layout em diferentes tamanhos de tela
+- [x] Verificar que sidebar funciona corretamente em mobile
