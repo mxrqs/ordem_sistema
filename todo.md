@@ -185,3 +185,12 @@
 - [x] Identificar a causa: race condition no render com setLocation
 - [x] Implementar useEffect para redirecionamento em AdminOrders.tsx
 - [x] Testar a página /admin/orders
+
+
+### Bug: URL Too Long (414) on /admin/orders with many orders
+- [x] Identify root cause: Loading photos for 250+ orders in batch requests
+- [x] Implement pagination with 10 items per page
+- [x] Add pagination controls (Previous, page numbers, Next)
+- [x] Reset to page 1 when changing tabs
+- [x] Fix React hooks error (moved useEffect to correct position)
+- [x] Test pagination stability

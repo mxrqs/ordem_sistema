@@ -109,6 +109,8 @@ export default function AdminOrders() {
   const [activeTab, setActiveTab] = useState<"OS" | "OC">("OS");
   const [uploadingOrderId, setUploadingOrderId] = useState<number | null>(null);
   const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -165,6 +167,13 @@ export default function AdminOrders() {
 
   // Filter orders by type
   const filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
+  
+  // Paginate orders
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleStatusChange = async (
     orderId: number,
@@ -285,10 +294,10 @@ export default function AdminOrders() {
             </button>
           </div>
 
-          {/* Orders List */}
-          {filteredOrders.length > 0 ? (
-            <div className="space-y-4">
-              {filteredOrders.map((order) => (
+           {/* Orders List */}
+           {filteredOrders.length > 0 ? (
+             <div className="space-y-4">
+               {paginatedOrders.map((order) => (
                 <Card
                   key={order.id}
                   className="bg-white border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
@@ -499,6 +508,44 @@ export default function AdminOrders() {
                   </div>
                 </Card>
               ))}
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8 pt-8 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Anterior
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      const startPage = Math.max(1, currentPage - 2);
+                      return startPage + i;
+                    }).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Próximo
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-16">
