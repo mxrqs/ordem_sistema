@@ -111,6 +111,7 @@ export default function AdminOrders() {
   const [deleteConfirmOrderId, setDeleteConfirmOrderId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set()); // Filter by status
+  const [dateFilter, setDateFilter] = useState<string>("all"); // Filter by date range
   const [editingOrderNumber, setEditingOrderNumber] = useState<{ orderId: number; value: string } | null>(null);
   const ITEMS_PER_PAGE = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -177,6 +178,37 @@ export default function AdminOrders() {
     return null;
   }
 
+  const filterByDateRange = (orders: any[]): any[] => {
+    if (!orders || dateFilter === "all") return orders;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    return orders.filter((order) => {
+      const orderDate = new Date(order.createdAt);
+      const orderDay = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+
+      switch (dateFilter) {
+        case "today":
+          return orderDay.getTime() === today.getTime();
+        case "yesterday":
+          return orderDay.getTime() === yesterday.getTime();
+        case "week":
+          return orderDay >= sevenDaysAgo && orderDay <= today;
+        case "month":
+          return orderDay >= thirtyDaysAgo && orderDay <= today;
+        default:
+          return true;
+      }
+    });
+  };
+
   // Filter orders by type, status, and sort by creation date (newest first)
   let filteredOrders = allOrders?.filter((order) => order.type === activeTab) || [];
   
@@ -185,6 +217,8 @@ export default function AdminOrders() {
     filteredOrders = filteredOrders.filter((order) => statusFilters.has(order.status));
   }
   
+  // Apply date filters
+  filteredOrders = filterByDateRange(filteredOrders);
   filteredOrders = [...filteredOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   // Paginate orders
@@ -352,6 +386,35 @@ export default function AdminOrders() {
                   Limpar filtros
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* Date Filters */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-border">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="font-semibold text-foreground">Filtrar por Data:</span>
+              {[
+                { value: "all", label: "Todas as datas" },
+                { value: "today", label: "Hoje" },
+                { value: "yesterday", label: "Ontem" },
+                { value: "week", label: "Últimos 7 dias" },
+                { value: "month", label: "Últimos 30 dias" },
+              ].map((option) => (
+                <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="dateFilter"
+                    value={option.value}
+                    checked={dateFilter === option.value}
+                    onChange={(e) => {
+                      setDateFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-4 h-4 rounded border-border cursor-pointer"
+                  />
+                  <span className="text-sm text-foreground">{option.label}</span>
+                </label>
+              ))}
             </div>
           </div>
 

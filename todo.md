@@ -301,3 +301,16 @@
 - [x] Aplicar responsive button layout (flex-col sm:flex-row) para mobile
 - [x] Testar layout em diferentes tamanhos de tela
 - [x] Verificar que sidebar funciona corretamente em mobile
+
+
+## Alterações Solicitadas - Sprint 6
+
+### Alteração 1 - Filtros de Data em Gerenciar Ordens
+- [x] Adicionar filtros de data na página AdminOrders (Gerenciar Solicitações)
+- [x] Implementar opções: Todas as datas, Hoje, Ontem, Últimos 7 dias, Últimos 30 dias
+- [x] Usar radio buttons para seleção de período
+- [x] Implementar lógica de filtragem por data no frontend
+- [x] Testar filtros em Ordens de Serviço (OS)
+- [x] Testar filtros em Ordens de Compra (OC)
+- [x] Verificar que filtros funcionam com paginação
+- [x] Verificar que filtros funcionam com status filters
