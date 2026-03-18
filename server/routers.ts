@@ -92,7 +92,17 @@ export const appRouter = router({
     myOrders: protectedProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) return [];
-      return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
+      // For admin: show all their orders
+      // For regular users: only show orders where osNumber is filled
+      if (ctx.user.role === "admin") {
+        return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
+      }
+      // Regular users: only see orders with osNumber filled (not null)
+      const result = await db.select().from(orders).where(
+        eq(orders.userId, ctx.user.id)
+      );
+      // Filter client-side to only show orders with osNumber
+      return result.filter(order => order.osNumber !== null && order.osNumber !== "");
     }),
 
     // Get all orders with user info (admin only)

@@ -247,3 +247,39 @@
 - [x] Implementar mutation tRPC para salvar número da OS
 - [x] Exibir campo como input editável em AdminOrders
 - [x] Testar preenchimento e salvamento do número da OS
+
+
+## Alterações Solicitadas - Sprint 5
+
+### Alteração 1 - Visibilidade Condicional de Ordens
+- [ ] Adicionar campo `isVisible` ou `orderNumber` ao banco de dados para controlar visibilidade
+- [ ] Modificar query tRPC para retornar apenas ordens com número preenchido para solicitantes
+- [ ] Admin continua vendo todas as ordens (com ou sem número)
+- [ ] Testar que solicitante não vê ordem até admin preencher número
+- [ ] Testar que ordem fica visível após admin preencher número
+
+### Alteração 2 - Layout Responsivo Mobile
+- [ ] Adaptar Sidebar para mobile (menu hamburger ou collapse)
+- [ ] Adaptar FormOS para mobile (campos em tela cheia)
+- [ ] Adaptar FormOC para mobile (campos em tela cheia)
+- [ ] Adaptar MyOrders para mobile (cards em coluna única)
+- [ ] Adaptar AdminOrders para mobile (tabelas em cards)
+- [ ] Adaptar Checklist para mobile (step-by-step view)
+- [ ] Testar em diferentes tamanhos de tela (320px, 375px, 768px)
+
+### Alteração 3 - Checklist em Step-by-Step
+- [ ] Remover visualização de tabela do Checklist
+- [ ] Criar componente ChecklistForm com multi-step
+- [ ] Implementar steps: contrato, veículo, placa, motorista, data, km inicial, luzes, freios, pneus, óleo, água, observações, fotos, assinatura
+- [ ] Adicionar botões: Voltar, Avançar, Concluir
+- [ ] Implementar progresso visual (1 de 14, 2 de 14, etc.)
+- [ ] Testar fluxo completo do checklist
+- [ ] Testar responsividade em mobile
+
+### Alteração 4 - Integração Completa do Fluxo
+- [ ] Testar: Solicitante cria OS/OC
+- [ ] Testar: Admin vê ordem em Gerenciar Ordens
+- [ ] Testar: Admin preenche número da OS/OC
+- [ ] Testar: Solicitante vê ordem em Minhas Solicitações
+- [ ] Testar: Solicitante preenche checklist em step-by-step
+- [ ] Testar: Fluxo completo em desktop e mobile
