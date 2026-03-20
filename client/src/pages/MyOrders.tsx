@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
+import CompleteOS from "@/components/CompleteOS";
 import { useState, useEffect } from "react";
 
 function PhotoGallery({ orderId }: { orderId: number }) {
@@ -110,6 +111,8 @@ export default function MyOrders() {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [categoriaFilter, setCategoriaFilter] = useState<string>("");
+  const [completeOSOpen, setCompleteOSOpen] = useState(false);
+  const [selectedOrderForCompletion, setSelectedOrderForCompletion] = useState<{ id: number; title: string } | null>(null);
   const ITEMS_PER_PAGE = 10;
 
   // Redirect to home if not authenticated
@@ -400,7 +403,7 @@ export default function MyOrders() {
                     <PhotoGallery orderId={order.id} />
                   </div>
 
-                  {/* PDF Section */}
+                  {/* Actions Section */}
                   <div className="bg-gray-50 border-t border-border px-6 py-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
@@ -409,22 +412,36 @@ export default function MyOrders() {
                           Documento PDF
                         </span>
                       </div>
-                      {order.pdfUrl ? (
-                        <a
-                          href={order.pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-                        >
-                          <Download className="w-4 h-4" />
-                          Baixar PDF
-                        </a>
-                      ) : (
-                        <span className="inline-flex items-center gap-2 text-sm text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
-                          <Clock className="w-4 h-4" />
-                          Aguardando envio pelo administrador
-                        </span>
-                      )}
+                      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        {order.pdfUrl ? (
+                          <a
+                            href={order.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Baixar PDF
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 text-sm text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
+                            <Clock className="w-4 h-4" />
+                            Aguardando envio
+                          </span>
+                        )}
+                        {order.type === "OS" && order.status !== "completed" && (
+                          <Button
+                            onClick={() => {
+                              setSelectedOrderForCompletion({ id: order.id, title: order.title || `OS #${order.id}` });
+                              setCompleteOSOpen(true);
+                            }}
+                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            Finalizar OS
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -487,6 +504,23 @@ export default function MyOrders() {
           )}
         </div>
       </div>
+
+      {/* CompleteOS Modal */}
+      {selectedOrderForCompletion && (
+        <CompleteOS
+          orderId={selectedOrderForCompletion.id}
+          orderTitle={selectedOrderForCompletion.title}
+          isOpen={completeOSOpen}
+          onClose={() => {
+            setCompleteOSOpen(false);
+            setSelectedOrderForCompletion(null);
+          }}
+          onSuccess={() => {
+            // Refetch orders after completion
+            window.location.reload();
+          }}
+        />
+      )}
     </MainLayout>
   );
 }

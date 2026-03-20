@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO orders (userId, type, title, description, status, totalValue, placa, km, contrato, categoria, osNumber) VALUES (1, 'OS', 'Manutenção Preventiva', 'Manutenção preventiva do veículo ABC-1234', 'not_started', 500.00, 'ABC-1234', 50000, 'CTR-001', 'Preventiva', 180004);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute INSERT INTO orders (userId, type, title, description, status, totalValue, placa, km, contrato, categoria, osNumber) VALUES (1, 'OS', 'Manutenção Preventiva', 'Manutenção preventiva do veículo ABC-1234', 'not_started', 500.00, 'ABC-1234', 50000, 'CTR-001', 'Preventiva', 180004);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 718
+}

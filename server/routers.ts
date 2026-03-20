@@ -340,6 +340,57 @@ export const appRouter = router({
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to delete order" });
         }
       }),
+
+    // Complete an OS with items
+    completeOS: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        items: z.array(z.object({
+          description: z.string().min(1),
+          quantity: z.number().int().positive(),
+          unitValue: z.string(),
+        })),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          // Check if order exists and belongs to user
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const orderData = orderResult[0];
+          if (orderData.userId !== ctx.user.id) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You don't have permission to complete this order" });
+          }
+
+          // Delete existing items for this order
+          await db.delete(orderItems).where(eq(orderItems.orderId, input.orderId));
+
+          // Insert new items
+          for (const item of input.items) {
+            await db.insert(orderItems).values({
+              orderId: input.orderId,
+              description: item.description,
+              quantity: item.quantity,
+              unitValue: item.unitValue,
+            });
+          }
+
+          // Update order status to completed
+          await db.update(orders).set({
+            status: "completed",
+          }).where(eq(orders.id, input.orderId));
+
+          return { success: true, message: "OS finalizada com sucesso" };
+        } catch (error) {
+          console.error("Error completing OS:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to complete OS" });
+        }
+      }),
   }),
 
   checklists: router({
