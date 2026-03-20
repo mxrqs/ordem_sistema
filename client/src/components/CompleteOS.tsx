@@ -17,7 +17,6 @@ interface CompleteOSProps {
 interface OrderItem {
   description: string;
   quantity: number;
-  unitValue: string;
 }
 
 export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuccess }: CompleteOSProps) {
@@ -25,7 +24,6 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
   const [currentItem, setCurrentItem] = useState<OrderItem>({
     description: "",
     quantity: 1,
-    unitValue: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,10 +32,6 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
   const addItem = () => {
     if (!currentItem.description.trim()) {
       toast.error("Descreva o item");
-      return;
-    }
-    if (!currentItem.unitValue || parseFloat(currentItem.unitValue) <= 0) {
-      toast.error("Informe um valor válido");
       return;
     }
     if (currentItem.quantity <= 0) {
@@ -49,19 +43,12 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
     setCurrentItem({
       description: "",
       quantity: 1,
-      unitValue: "",
     });
     toast.success("Item adicionado");
   };
 
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
-  };
-
-  const calculateTotal = () => {
-    return items.reduce((sum, item) => {
-      return sum + item.quantity * parseFloat(item.unitValue || "0");
-    }, 0);
   };
 
   const handleSubmit = async () => {
@@ -74,14 +61,17 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
     try {
       await completeOSMutation.mutateAsync({
         orderId,
-        items,
+        items: items.map(item => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitValue: "0" // Keep for backward compatibility
+        })),
       });
       toast.success("OS finalizada com sucesso!");
       setItems([]);
       setCurrentItem({
         description: "",
         quantity: 1,
-        unitValue: "",
       });
       onClose();
       onSuccess?.();
@@ -115,12 +105,12 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
                   onChange={(e) =>
                     setCurrentItem({ ...currentItem, description: e.target.value })
                   }
-                  placeholder="Ex: Peça de reposição, mão de obra, etc"
+                  placeholder="Ex: Peça de reposição, mão de obra, óleo, etc"
                   className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-foreground mb-2 block">
                     Quantidade
@@ -135,23 +125,6 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
                         quantity: parseInt(e.target.value) || 1,
                       })
                     }
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-foreground mb-2 block">
-                    Valor Unitário (R$)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={currentItem.unitValue}
-                    onChange={(e) =>
-                      setCurrentItem({ ...currentItem, unitValue: e.target.value })
-                    }
-                    placeholder="0.00"
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
@@ -182,8 +155,7 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
                     <div className="flex-1">
                       <p className="font-medium text-foreground">{item.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {item.quantity}x R$ {parseFloat(item.unitValue).toFixed(2)} = R${" "}
-                        {(item.quantity * parseFloat(item.unitValue)).toFixed(2)}
+                        Quantidade: {item.quantity}
                       </p>
                     </div>
                     <button
@@ -194,16 +166,6 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
                     </button>
                   </div>
                 ))}
-              </div>
-
-              {/* Total */}
-              <div className="mt-4 pt-4 border-t border-border">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-foreground">Total:</span>
-                  <span className="text-2xl font-bold text-primary">
-                    R$ {calculateTotal().toFixed(2)}
-                  </span>
-                </div>
               </div>
             </Card>
           )}

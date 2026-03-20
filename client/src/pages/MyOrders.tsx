@@ -355,6 +355,10 @@ export default function MyOrders() {
                     {/* Order Details Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-gray-50 rounded-lg p-4">
                       <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Número</p>
+                        <p className="text-sm font-bold text-primary">#{order.osNumber || order.id}</p>
+                      </div>
+                      <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Data</p>
                         <p className="text-sm font-semibold text-foreground flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
