@@ -81,6 +81,20 @@ export const appRouter = router({
             }
           }
 
+          // Send notification to user
+          const orderType = input.type === "OS" ? "Ordem de Servico" : "Ordem de Compra";
+          if (ctx.user.email) {
+            try {
+              await sendEmailNotification(
+                ctx.user.email,
+                `${orderType} Criada com Sucesso`,
+                `Sua ${orderType} foi criada com sucesso e esta aguardando analise do administrador.`
+              );
+            } catch (emailError) {
+              console.error("Failed to send notification:", emailError);
+            }
+          }
+
           return { id: orderId, message: "Order created successfully" };
         } catch (error) {
           console.error("Error creating order:", error);

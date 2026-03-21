@@ -410,11 +410,18 @@ export default function MyOrders() {
                   {/* Actions Section */}
                   <div className="bg-gray-50 border-t border-border px-6 py-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-semibold text-muted-foreground">
-                          Documento PDF
-                        </span>
+                      <div className="flex flex-col gap-4 flex-1 w-full">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-semibold text-muted-foreground">
+                            Documento PDF
+                          </span>
+                        </div>
+                        <div className="border border-border rounded-lg p-3 bg-white min-h-12 flex items-center">
+                          <span className="text-sm text-muted-foreground">
+                            {order.osNumber ? `Número: ${order.osNumber}` : "Aguardando número do administrador"}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         {order.pdfUrl ? (

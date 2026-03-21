@@ -11,7 +11,7 @@ import {
   Menu,
   X,
   Wrench,
-  ShoppingCart,
+  Package,
   ClipboardList,
   FileText,
 } from "lucide-react";
@@ -123,7 +123,7 @@ export default function Sidebar() {
                   : "text-foreground hover:bg-muted"
               }`}
             >
-              <ShoppingCart className="w-5 h-5 text-purple-500" />
+              <Package className="w-5 h-5 text-purple-500" />
               <span>Ordem de Compra</span>
             </button>
 

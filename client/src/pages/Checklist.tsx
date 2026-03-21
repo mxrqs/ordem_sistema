@@ -66,8 +66,8 @@ export default function Checklist() {
 
   return (
     <MainLayout>
-      <div className="bg-background text-foreground">
-        <div className="container py-8">
+      <div className="text-foreground">
+        <div className="container py-8 px-4 sm:px-6 md:px-8">
           {/* Header */}
           <div className="mb-12 border-b divider-line pb-8">
             <div className="flex items-center justify-between mb-6">
@@ -180,7 +180,7 @@ export default function Checklist() {
                 <Card
                   key={item.id}
                   className={`p-4 border divider-line transition-all ${
-                    item.completed ? "bg-muted opacity-60" : ""
+                    item.completed ? "opacity-60" : ""
                   }`}
                 >
                   <div className="flex items-start gap-4">

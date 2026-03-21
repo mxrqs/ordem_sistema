@@ -329,3 +329,11 @@
 - [x] Testar responsividade em diferentes tamanhos de tela
 - [x] Testar navegação entre etapas
 - [x] Testar persistência de dados ao navegar
+
+
+## Alterações Solicitadas - Sprint 8
+
+- [ ] Ajustar área de checklist - remover fundo cinza, deixar normal, remover testes
+- [ ] Implementar notificação ao solicitante quando OS/OC é criada (WhatsApp ou notificação in-app)
+- [ ] Ajustar ícone OC - trocar por ícone que combine com o sistema
+- [ ] Adicionar caixa de número em Minhas Solicitações - campo em branco preenchido pelo admin em Gerenciar Ordens
