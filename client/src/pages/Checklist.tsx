@@ -66,7 +66,7 @@ export default function Checklist() {
 
   return (
     <MainLayout>
-      <div className="text-foreground">
+      <div className="text-foreground bg-white min-h-screen">
         <div className="container py-8 px-4 sm:px-6 md:px-8">
           {/* Header */}
           <div className="mb-12 border-b divider-line pb-8">

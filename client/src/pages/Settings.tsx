@@ -2,13 +2,20 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, RotateCcw, Mail, Copy, Check } from "lucide-react";
+import { Download, RotateCcw, Mail, Copy, Check, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [, setLocation] = useLocation();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    await logout();
+    setLocation("/");
+  };
 
   const handleCopyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -17,45 +24,17 @@ export default function Settings() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const handleExportData = async () => {
-    try {
-      const allOrders = await trpc.orders.all.useQuery();
-      if (!allOrders.data) {
-        alert("Nenhum dado para exportar");
-        return;
-      }
-
-      const csv = [
-        ["ID", "Tipo", "Título", "Status", "Data", "Solicitante", "Valor"],
-        ...allOrders.data.map((order) => [
-          order.id,
-          order.type,
-          order.title,
-          order.status,
-          new Date(order.createdAt).toLocaleDateString("pt-BR"),
-          order.userId,
-          order.totalValue || "-",
-        ]),
-      ]
-        .map((row) => row.join(","))
-        .join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `dados-ordens-${new Date().toISOString().split("T")[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      alert("Dados exportados com sucesso!");
-    } catch (error) {
-      console.error("Erro ao exportar dados:", error);
-      alert("Erro ao exportar dados");
-    }
+  const handleExportData = () => {
+    alert("Exportação de dados em desenvolvimento");
   };
 
   const handleResetPassword = () => {
     alert("Link de reset de senha enviado para seu email");
+  };
+
+  const handleExportDataFixed = () => {
+    // This is a placeholder - actual export would need to be implemented differently
+    alert("Exportação de dados em desenvolvimento");
   };
 
   return (
@@ -164,8 +143,16 @@ export default function Settings() {
                 <RotateCcw className="w-4 h-4" />
                 Alterar Senha
               </Button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair da Conta
+              </Button>
               <p className="text-xs text-muted-foreground">
-                Altere sua senha de acesso ao sistema para manter sua conta segura
+                Altere sua senha de acesso ao sistema para manter sua conta segura ou saia da sua conta
               </p>
             </div>
           </Card>

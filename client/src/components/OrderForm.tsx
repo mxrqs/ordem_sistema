@@ -25,6 +25,53 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
+// Compress image for mobile uploads
+async function compressImage(file: File): Promise<File> {
+  return new Promise<File>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new (window.Image as any)();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxSize = 1280;
+        if (width > height && width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            0.7
+          );
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFormProps) {
   const createOrderMutation = trpc.orders.create.useMutation();
   const uploadPhotoMutation = trpc.orders.uploadPhoto.useMutation();
@@ -61,12 +108,13 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
     setStep(1);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      setImages([...images, ...newFiles]);
+      const compressedFiles = await Promise.all(newFiles.map(compressImage));
+      setImages([...images, ...compressedFiles]);
       // Create previews
-      newFiles.forEach((file) => {
+      compressedFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onload = () => {
           setImagePreviews((prev) => [...prev, reader.result as string]);
