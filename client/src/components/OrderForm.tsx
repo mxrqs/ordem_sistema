@@ -206,11 +206,13 @@ export default function OrderForm({ orderType, onClose, onTypeSelect }: OrderFor
       // 3. Upload budget file as photo if exists (for OC)
       if (budgetFile) {
         const base64 = await fileToBase64(budgetFile);
+        // Save PDF with proper label to distinguish from photos
+        const label = budgetFile.type === 'application/pdf' ? 'orcamento-pdf' : 'orcamento';
         await uploadPhotoMutation.mutateAsync({
           orderId,
           photoBase64: base64,
           fileName: budgetFile.name,
-          label: "orcamento",
+          label: label,
         });
       }
 

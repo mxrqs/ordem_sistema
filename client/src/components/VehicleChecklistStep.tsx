@@ -184,7 +184,7 @@ export default function VehicleChecklistStep({
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white p-4 rounded-lg">
             <div>
               <label className="block text-sm font-semibold mb-2">Contrato</label>
               <input
@@ -249,7 +249,7 @@ export default function VehicleChecklistStep({
 
       case 2:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white p-4 rounded-lg">
             <div>
               <label className="block text-sm font-semibold mb-3">Luzes</label>
               <div className="flex gap-2">
@@ -349,7 +349,7 @@ export default function VehicleChecklistStep({
 
       case 3:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white p-4 rounded-lg">
             {[
               { key: "km", label: "Foto KM" },
               { key: "frente", label: "Foto Frente" },
@@ -403,7 +403,7 @@ export default function VehicleChecklistStep({
 
       case 4:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white p-4 rounded-lg">
             <div>
               <label className="block text-sm font-semibold mb-2">Observações</label>
               <textarea
@@ -418,7 +418,7 @@ export default function VehicleChecklistStep({
 
       case 5:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white p-4 rounded-lg">
             <div>
               <label className="block text-sm font-semibold mb-2">Assinatura</label>
               <div className="border-2 border-border rounded-lg overflow-hidden">
