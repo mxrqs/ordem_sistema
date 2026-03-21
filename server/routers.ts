@@ -106,20 +106,11 @@ export const appRouter = router({
     myOrders: protectedProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) return [];
-      // For admin: show all their orders
-      // For regular users: only show orders where osNumber is filled
-      if (ctx.user.role === "admin") {
-        return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
-      }
-      // Regular users: only see orders with osNumber filled (not null)
-      const result = await db.select().from(orders).where(
-        eq(orders.userId, ctx.user.id)
-      );
-      // Filter client-side to only show orders with osNumber
-      return result.filter(order => order.osNumber !== null && order.osNumber !== "");
+      // Show all orders for the current user (both admin and regular users see their own orders)
+      return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
     }),
 
-    // Get all orders with user info (admin only)
+    // Get all orders with user info (admin only) - for admin dashboard
     all: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
