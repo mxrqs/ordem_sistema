@@ -241,11 +241,11 @@ export default function Sidebar() {
               {/* Configurações */}
               <button
                 onClick={() => {
-                  setLocation("/admin/settings");
+                  setLocation("/settings");
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive("/admin/settings")
+                  isActive("/settings")
                     ? "bg-blue-50 text-primary"
                     : "text-foreground hover:bg-muted"
                 }`}
