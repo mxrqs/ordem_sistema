@@ -80,23 +80,29 @@ export default function Login() {
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          {/* Logo with bounce animation */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-new-3XhsZT5cmqSUQVmb8pxSAQ.webp"
-              alt="Marqs Systems"
-              className="w-16 h-16 animate-bounce-slow"
-            />
+          {/* Logo with white background and bounce animation */}
+          <div className="flex items-center justify-center mb-8">
+            <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center animate-bounce-slow">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-new-3XhsZT5cmqSUQVmb8pxSAQ.webp"
+                alt="Marqs Systems"
+                className="w-16 h-16"
+              />
+            </div>
           </div>
+          {/* Title - using subtitle as main title */}
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            Controle de Serviços e Manutenção
+          </h1>
         </div>
 
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 animate-fade-in backdrop-blur-sm" style={{ animationDelay: "0.2s" }}>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            Bem-vindo
+          <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            Bem-vindo de volta
           </h2>
-          <p className="text-gray-600 text-center mb-8 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            Escolha uma forma de entrar no sistema
+          <p className="text-gray-600 text-center mb-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+            Acesse o sistema para gerenciar suas ordens de serviço e compra.
           </p>
 
           {/* Login Options */}
