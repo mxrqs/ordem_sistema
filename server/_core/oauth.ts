@@ -11,24 +11,7 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
-  // OAuth provider redirects - these initiate the OAuth flow
-  const providers = ["microsoft", "email", "phone", "google"];
-  
-  for (const provider of providers) {
-    app.get(`/api/oauth/${provider}`, (req: Request, res: Response) => {
-      try {
-        const origin = req.get("origin") || req.get("x-forwarded-proto") ? `${req.get("x-forwarded-proto")}://${req.get("host")}` : `http://localhost:3000`;
-        const redirectUri = `${origin}/api/oauth/callback`;
-        const state = Buffer.from(redirectUri).toString("base64");
-        const oauthUrl = `${ENV.oauthPortalUrl}/authorize?client_id=${ENV.appId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&provider=${provider}`;
-        res.redirect(302, oauthUrl);
-      } catch (error) {
-        console.error(`[OAuth] ${provider} redirect failed`, error);
-        res.status(500).json({ error: `OAuth ${provider} redirect failed` });
-      }
-    });
-  }
-
+  // OAuth callback - handles the OAuth response from Manus
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
@@ -66,7 +49,38 @@ export function registerOAuthRoutes(app: Express) {
       res.redirect(302, "/my-orders");
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
-      res.status(500).json({ error: "OAuth callback failed" });
+      res.redirect(302, "/?error=oauth_failed");
     }
   });
+
+  // OAuth login endpoints - redirect to Manus OAuth portal
+  const providers = ["microsoft", "email", "phone", "google"];
+  
+  for (const provider of providers) {
+    app.get(`/api/oauth/${provider}`, (req: Request, res: Response) => {
+      try {
+        // Get the origin from request headers
+        const protocol = req.get("x-forwarded-proto") || "http";
+        const host = req.get("x-forwarded-host") || req.get("host") || "localhost:3000";
+        const origin = `${protocol}://${host}`;
+        
+        const redirectUri = `${origin}/api/oauth/callback`;
+        const state = Buffer.from(redirectUri).toString("base64");
+        
+        // Build OAuth URL
+        const oauthUrl = new URL(`${ENV.oauthPortalUrl}/authorize`);
+        oauthUrl.searchParams.set("client_id", ENV.appId);
+        oauthUrl.searchParams.set("redirect_uri", redirectUri);
+        oauthUrl.searchParams.set("state", state);
+        oauthUrl.searchParams.set("provider", provider);
+        oauthUrl.searchParams.set("response_type", "code");
+        
+        console.log(`[OAuth] Redirecting to ${provider} with URL:`, oauthUrl.toString());
+        res.redirect(302, oauthUrl.toString());
+      } catch (error) {
+        console.error(`[OAuth] ${provider} redirect failed:`, error);
+        res.redirect(302, "/?error=oauth_redirect_failed");
+      }
+    });
+  }
 }
