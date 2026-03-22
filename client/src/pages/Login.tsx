@@ -104,27 +104,18 @@ export default function Login() {
               </div>
             )}
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={isLoading}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
-                />
-                <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700 cursor-pointer">
-                  Manter conectado
-                </label>
-              </div>
-              <button
-                type="button"
-                onClick={() => window.location.href = '/forgot-password'}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition"
-              >
-                Esqueceu a senha?
-              </button>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isLoading}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
+              />
+              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700 cursor-pointer">
+                Manter conectado
+              </label>
             </div>
 
             <button

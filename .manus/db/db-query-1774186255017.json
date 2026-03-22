@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE `passwordResetTokens` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`token` varchar(255) NOT NULL,\n\t`expiresAt` timestamp NOT NULL,\n\t`used` boolean NOT NULL DEFAULT false,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `passwordResetTokens_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `passwordResetTokens_token_unique` UNIQUE(`token`)\n);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute CREATE TABLE `passwordResetTokens` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`token` varchar(255) NOT NULL,\n\t`expiresAt` timestamp NOT NULL,\n\t`used` boolean NOT NULL DEFAULT false,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `passwordResetTokens_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `passwordResetTokens_token_unique` UNIQUE(`token`)\n);",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 1018
-}
