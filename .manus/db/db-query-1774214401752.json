@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET passwordHash='5a717675998a7e760fb0f3dfdfdb9559:612e332479ed432f5016ecb5bf61e436b9a19d487eb212a16a1d7e806d46c955565518ef7e8cabf5be63757d93fe196ece7c179ea0c81e5a62f162f0c358ea78' WHERE email='marcusvynicius135@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute UPDATE users SET passwordHash='5a717675998a7e760fb0f3dfdfdb9559:612e332479ed432f5016ecb5bf61e436b9a19d487eb212a16a1d7e806d46c955565518ef7e8cabf5be63757d93fe196ece7c179ea0c81e5a62f162f0c358ea78' WHERE email='marcusvynicius135@gmail.com';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 358
+}

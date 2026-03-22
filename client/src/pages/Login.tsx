@@ -24,10 +24,17 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // Validate password is provided
+      if (!name || name.trim().length === 0) {
+        setError("Senha é obrigatória");
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: name || "" }),
+        body: JSON.stringify({ email, password: name }),
       });
 
       const data = await response.json();
@@ -100,7 +107,7 @@ export default function Login() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Senha (opcional)
+                Senha <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
@@ -108,6 +115,7 @@ export default function Login() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Sua senha"
                 disabled={isLoading}
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:cursor-not-allowed"
               />
             </div>
@@ -134,7 +142,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading || !email || authLoading}
+              disabled={isLoading || !email || !name || authLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
             >
               {isLoading || authLoading ? (

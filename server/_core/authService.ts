@@ -116,19 +116,19 @@ export async function registerUser(
 /**
  * Login user with email and password
  * @param email - User email
- * @param password - Plain text password (optional for users without passwordHash)
+ * @param password - Plain text password (REQUIRED)
  * @returns AuthResponse with success status
  */
 export async function loginUser(
   email: string,
-  password?: string
+  password: string
 ): Promise<AuthResponse> {
   try {
-    // Validate email
-    if (!email) {
+    // Validate email and password
+    if (!email || !password) {
       return {
         success: false,
-        message: "Email é obrigatório",
+        message: "Email e senha são obrigatórios",
         error: "MISSING_FIELDS",
       };
     }
@@ -144,28 +144,22 @@ export async function loginUser(
       };
     }
 
-    // If user has a password, require and verify it
-    if (user.passwordHash) {
-      if (!password) {
-        return {
-          success: false,
-          message: "Senha é obrigatória",
-          error: "MISSING_PASSWORD",
-        };
-      }
+    // Check if user has a password set
+    if (!user.passwordHash) {
+      return {
+        success: false,
+        message: "Usuário não possui senha configurada. Entre em contato com o administrador.",
+        error: "NO_PASSWORD_SET",
+      };
+    }
 
-      // Verify password
-      if (!verifyPassword(password, user.passwordHash)) {
-        return {
-          success: false,
-          message: "Email ou senha incorretos",
-          error: "INVALID_CREDENTIALS",
-        };
-      }
-    } else {
-      // User doesn't have password set yet (e.g., admin created manually)
-      // Allow login without password - they can set it later
-      // This supports the flow where admin is created without password
+    // Verify password
+    if (!verifyPassword(password, user.passwordHash)) {
+      return {
+        success: false,
+        message: "Email ou senha incorretos",
+        error: "INVALID_CREDENTIALS",
+      };
     }
 
     // Update last signed in
