@@ -70,6 +70,14 @@ export default function Login() {
     }, 300);
   };
 
+  const handleGoogleLogin = () => {
+    setLoggingIn(true);
+    setActiveButton("google");
+    setTimeout(() => {
+      window.location.href = "/api/oauth/google";
+    }, 300);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center px-3 sm:px-4 md:px-8 py-8 sm:py-12 overflow-hidden">
       {/* Animated background elements - hidden on mobile */}
@@ -174,17 +182,43 @@ export default function Login() {
                 </>
               )}
             </button>
+
+            {/* Google Login */}
+            <button
+              onClick={handleGoogleLogin}
+              disabled={loggingIn}
+              className={`w-full flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-white border-2 border-red-400 text-red-600 font-semibold text-sm sm:text-base rounded-xl transition-all duration-300 hover:bg-red-50 hover:border-red-500 hover:scale-105 active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed animate-fade-in ${
+                activeButton === "google" ? "ring-2 ring-red-300" : ""
+              }`}
+              style={{ animationDelay: "0.8s" }}
+            >
+              {activeButton === "google" ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Entrando...</span>
+                </>
+              ) : (
+                <>
+                  <img
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/google-login-icon-LYQ3HDjLXdJneuspHVFv9R.webp"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
+                  Entrar com Google
+                </>
+              )}
+            </button>
           </div>
 
           {/* Divider */}
-          <div className="my-4 sm:my-6 flex items-center gap-3 animate-fade-in" style={{ animationDelay: "0.8s" }}>
+          <div className="my-4 sm:my-6 flex items-center gap-3 animate-fade-in" style={{ animationDelay: "0.9s" }}>
             <div className="flex-1 h-px bg-gray-200"></div>
             <span className="text-gray-500 text-xs sm:text-sm">ou</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
           {/* Info Text */}
-          <p className="text-center text-xs sm:text-sm text-gray-600 animate-fade-in px-2" style={{ animationDelay: "0.9s" }}>
+          <p className="text-center text-xs sm:text-sm text-gray-600 animate-fade-in px-2" style={{ animationDelay: "1s" }}>
             Ao entrar, você concorda com nossos
             <br />
             <a href="#" className="text-blue-600 hover:underline transition-colors">
@@ -199,7 +233,7 @@ export default function Login() {
 
         {/* Features */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1s" }}>
+          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1.1s" }}>
             <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 hover:bg-blue-200 transition-colors">
               <svg className="w-5 sm:w-6 h-5 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -207,7 +241,7 @@ export default function Login() {
             </div>
             <p className="text-xs text-gray-600 font-medium">Seguro</p>
           </div>
-          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1.1s" }}>
+          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1.2s" }}>
             <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 hover:bg-blue-200 transition-colors">
               <svg className="w-5 sm:w-6 h-5 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -215,7 +249,7 @@ export default function Login() {
             </div>
             <p className="text-xs text-gray-600 font-medium">Rápido</p>
           </div>
-          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1.2s" }}>
+          <div className="text-center animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: "1.3s" }}>
             <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-1 sm:mb-2 hover:bg-blue-200 transition-colors">
               <svg className="w-5 sm:w-6 h-5 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -226,7 +260,7 @@ export default function Login() {
         </div>
 
         {/* Footer */}
-        <div className="text-center animate-fade-in" style={{ animationDelay: "1.3s" }}>
+        <div className="text-center animate-fade-in" style={{ animationDelay: "1.4s" }}>
           <p className="text-xs text-gray-500 px-2">
             © 2026 Marqs Systems. Todos os direitos reservados.
           </p>
