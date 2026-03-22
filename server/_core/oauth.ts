@@ -3,6 +3,7 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { ENV } from "./env";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -10,6 +11,24 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  // OAuth provider redirects - these initiate the OAuth flow
+  const providers = ["microsoft", "email", "phone", "google"];
+  
+  for (const provider of providers) {
+    app.get(`/api/oauth/${provider}`, (req: Request, res: Response) => {
+      try {
+        const origin = req.get("origin") || req.get("x-forwarded-proto") ? `${req.get("x-forwarded-proto")}://${req.get("host")}` : `http://localhost:3000`;
+        const redirectUri = `${origin}/api/oauth/callback`;
+        const state = Buffer.from(redirectUri).toString("base64");
+        const oauthUrl = `${ENV.oauthPortalUrl}/authorize?client_id=${ENV.appId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&provider=${provider}`;
+        res.redirect(302, oauthUrl);
+      } catch (error) {
+        console.error(`[OAuth] ${provider} redirect failed`, error);
+        res.status(500).json({ error: `OAuth ${provider} redirect failed` });
+      }
+    });
+  }
+
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
@@ -44,7 +63,7 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      res.redirect(302, "/");
+      res.redirect(302, "/my-orders");
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
       res.status(500).json({ error: "OAuth callback failed" });
