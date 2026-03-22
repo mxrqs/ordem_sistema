@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
-import { orders, orderItems, checklists, notifications, users, orderPhotos } from "../drizzle/schema";
+import { orders, orderItems, checklists, notifications, users, orderPhotos, requestHistory, historyAttachments } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { sendEmailNotification, getStatusChangeMessage, getPdfAttachedMessage } from "./_core/email";
 import { storagePut } from "./storage";
@@ -556,6 +556,173 @@ export const appRouter = router({
         await db.delete(checklists).where(eq(checklists.userId, input.userId));
         await db.delete(users).where(eq(users.id, input.userId));
         return { success: true };
+      }),
+  }),
+
+  history: router({
+    // Get history for an order
+    getByOrder: protectedProcedure
+      .input(z.object({ orderId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) return [];
+
+        try {
+          // Check if user has access to this order
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const orderData = orderResult[0];
+          // Allow access if user owns the order or is admin
+          if (orderData.userId !== ctx.user.id && ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You don't have access to this order" });
+          }
+
+          // Get history entries with user info
+          const historyEntries = await db.select().from(requestHistory).where(eq(requestHistory.orderId, input.orderId));
+          
+          // Fetch user info for each entry
+          const historyWithUsers = await Promise.all(
+            historyEntries.map(async (entry) => {
+              const userResult = await db.select().from(users).where(eq(users.id, entry.userId)).limit(1);
+              return {
+                ...entry,
+                userName: userResult.length > 0 ? userResult[0].name : "Desconhecido",
+              };
+            })
+          );
+
+          return historyWithUsers;
+        } catch (error) {
+          console.error("Error fetching order history:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        }
+      }),
+
+    // Add a message to order history
+    addMessage: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        content: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          // Check if order exists and user has access
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const orderData = orderResult[0];
+          if (orderData.userId !== ctx.user.id && ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You don't have access to this order" });
+          }
+
+          const result = await db.insert(requestHistory).values({
+            orderId: input.orderId,
+            userId: ctx.user.id,
+            type: "message",
+            content: input.content,
+          });
+
+          return { id: (result as any).insertId, success: true };
+        } catch (error) {
+          console.error("Error adding message:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        }
+      }),
+
+    // Add a system event to order history
+    addSystemEvent: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        eventType: z.enum(["status_changed", "order_number_assigned", "item_added", "photo_added", "pdf_uploaded", "completed", "other"]),
+        content: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          // Only admin can add system events
+          if (ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can add system events" });
+          }
+
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const result = await db.insert(requestHistory).values({
+            orderId: input.orderId,
+            userId: ctx.user.id,
+            type: "system_event",
+            eventType: input.eventType,
+            content: input.content,
+          });
+
+          return { id: (result as any).insertId, success: true };
+        } catch (error) {
+          console.error("Error adding system event:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        }
+      }),
+
+    // Upload attachment to order history
+    uploadAttachment: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        fileBase64: z.string(),
+        fileName: z.string(),
+        fileType: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          // Check if order exists and user has access
+          const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+          if (orderResult.length === 0) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          }
+
+          const orderData = orderResult[0];
+          if (orderData.userId !== ctx.user.id && ctx.user.role !== "admin") {
+            throw new TRPCError({ code: "FORBIDDEN", message: "You don't have access to this order" });
+          }
+
+          // Convert base64 to buffer
+          const buffer = Buffer.from(input.fileBase64, "base64");
+          const randomSuffix = Math.random().toString(36).substring(2, 8);
+          const fileKey = `orders/${input.orderId}/history/${Date.now()}-${randomSuffix}-${input.fileName}`;
+
+          // Upload to S3
+          const { url } = await storagePut(fileKey, buffer, input.fileType);
+
+          // Create history entry
+          const historyResult = await db.insert(requestHistory).values({
+            orderId: input.orderId,
+            userId: ctx.user.id,
+            type: "attachment",
+            fileName: input.fileName,
+            fileUrl: url,
+            fileKey: fileKey,
+            fileType: input.fileType,
+            fileSize: buffer.length,
+          });
+
+          return { id: (historyResult as any).insertId, url, success: true };
+        } catch (error) {
+          console.error("Error uploading attachment:", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to upload attachment" });
+        }
       }),
   }),
 

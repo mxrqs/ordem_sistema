@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, RotateCcw, Mail, Copy, Check, LogOut } from "lucide-react";
+import { Download, RotateCcw, Mail, Copy, Check, LogOut, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -13,6 +13,11 @@ export default function Settings() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleLogout = async () => {
+    await logout();
+    setLocation("/");
+  };
+
+  const handleBackToLogin = async () => {
     await logout();
     setLocation("/");
   };
@@ -151,8 +156,16 @@ export default function Settings() {
                 <LogOut className="w-4 h-4" />
                 Sair da Conta
               </Button>
+              <Button
+                onClick={handleBackToLogin}
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar a Tela de Login
+              </Button>
               <p className="text-xs text-muted-foreground">
-                Altere sua senha de acesso ao sistema para manter sua conta segura ou saia da sua conta
+                Altere sua senha de acesso ao sistema para manter sua conta segura, saia da sua conta ou volte a tela de login
               </p>
             </div>
           </Card>

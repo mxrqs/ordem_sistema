@@ -16,6 +16,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminUsers from "./pages/AdminUsers";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import { OrderDetails } from "./pages/OrderDetails";
 
 function Router() {
   return (
@@ -32,6 +33,7 @@ function Router() {
       <Route path={"/users"} component={AdminUsers} />
       <Route path={"/reports"} component={Reports} />
       <Route path={"/settings"} component={Settings} />
+      <Route path={"/order/:id"} component={OrderDetails} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

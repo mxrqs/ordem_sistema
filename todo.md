@@ -337,3 +337,43 @@
 - [ ] Implementar notificação ao solicitante quando OS/OC é criada (WhatsApp ou notificação in-app)
 - [ ] Ajustar ícone OC - trocar por ícone que combine com o sistema
 - [ ] Adicionar caixa de número em Minhas Solicitações - campo em branco preenchido pelo admin em Gerenciar Ordens
+
+## Alterações Solicitadas - Sprint 9 (Histórico de Solicitações)
+
+### Alteração 1 - Histórico WhatsApp-style
+- [x] Criar tabelas de banco de dados: requestHistory e historyAttachments
+- [x] Implementar procedures tRPC para gerenciar histórico
+- [x] Criar página OrderDetails com interface estilo WhatsApp
+- [x] Implementar exibição de mensagens com usuário, data e hora
+- [x] Implementar exibição de eventos do sistema (status changes)
+- [x] Implementar seção de anexos com preview
+- [x] Adicionar botão para voltar à lista de solicitações
+
+### Alteração 2 - Upload e Exibição de PDF
+- [x] Corrigir upload de PDF para salvar como arquivo real (não como imagem)
+- [x] Implementar preview com ícone ou miniatura de PDF
+- [x] Garantir que PDF abre corretamente ao clicar
+- [x] Suportar múltiplos tipos de arquivo (PDF, imagens, documentos)
+- [x] Testar upload e download de PDFs
+
+### Alteração 3 - Botão Voltar ao Login
+- [x] Adicionar botão "Voltar à Tela de Login" em Settings
+- [x] Implementar logout ao clicar no botão
+- [x] Redirecionar para página de login
+- [x] Testar funcionalidade
+
+### Alteração 4 - Integração com MyOrders
+- [x] Adicionar links clicáveis nos cards de solicitações em MyOrders
+- [x] Navegar para página OrderDetails ao clicar em uma solicitação
+- [x] Exibir histórico completo da solicitação
+- [x] Testar navegação entre páginas
+
+### Testes
+- [x] Criar testes vitest para feature de histórico
+- [x] Testar criação de mensagens no histórico
+- [x] Testar criação de eventos do sistema
+- [x] Testar upload e armazenamento de anexos
+- [x] Testar recuperação de histórico por ordem
+- [x] Testar metadados de anexos (nome, tipo, tamanho)
+- [x] Testar diferentes tipos de arquivo
+- [x] Testar timestamps de histórico

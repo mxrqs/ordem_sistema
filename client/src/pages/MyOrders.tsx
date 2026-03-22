@@ -320,12 +320,13 @@ export default function MyOrders() {
               {paginatedOrders.map((order) => (
                 <Card
                   key={order.id}
-                  className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => setLocation(`/order/${order.id}`)}
                 >
                   <div className="p-6">
                     {/* Order Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1">
                         <div
                           className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             order.type === "OS"
@@ -335,8 +336,8 @@ export default function MyOrders() {
                         >
                           <FileText className="w-5 h-5" />
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-foreground">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-foreground hover:text-primary transition-colors">
                             {order.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"} #{order.id}
                           </h3>
                           <p className="text-sm text-muted-foreground">{order.title || "Sem título"}</p>

@@ -143,3 +143,76 @@ export const orderPhotosRelations = relations(orderPhotos, ({ one }) => ({
     references: [orders.id],
   }),
 }));
+
+/**
+ * Request history for WhatsApp-style conversation tracking
+ * Stores messages, system events, and attachments per order
+ */
+export const requestHistory = mysqlTable("requestHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  userId: int("userId").notNull(), // User who created the message/event
+  type: mysqlEnum("type", ["message", "system_event", "attachment"]).notNull(),
+  // For messages: the text content
+  // For system_event: description of what changed (e.g., "Status changed from not_started to in_process")
+  // For attachment: metadata about the attachment
+  content: text("content"),
+  // For system events, what event occurred
+  eventType: mysqlEnum("eventType", [
+    "status_changed",
+    "order_number_assigned",
+    "item_added",
+    "photo_added",
+    "pdf_uploaded",
+    "completed",
+    "other"
+  ]),
+  // For attachments: file metadata
+  fileName: varchar("fileName", { length: 255 }),
+  fileUrl: varchar("fileUrl", { length: 500 }),
+  fileKey: varchar("fileKey", { length: 500 }),
+  fileType: varchar("fileType", { length: 50 }), // e.g., "application/pdf", "image/jpeg"
+  fileSize: int("fileSize"), // in bytes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RequestHistory = typeof requestHistory.$inferSelect;
+export type InsertRequestHistory = typeof requestHistory.$inferInsert;
+
+/**
+ * Attachments table for request history
+ * Stores file attachments linked to history entries
+ */
+export const historyAttachments = mysqlTable("historyAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  historyId: int("historyId").notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  fileType: varchar("fileType", { length: 50 }).notNull(), // e.g., "application/pdf", "image/jpeg"
+  fileSize: int("fileSize"), // in bytes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type HistoryAttachment = typeof historyAttachments.$inferSelect;
+export type InsertHistoryAttachment = typeof historyAttachments.$inferInsert;
+
+// Relations for request history
+export const requestHistoryRelations = relations(requestHistory, ({ one, many }) => ({
+  order: one(orders, {
+    fields: [requestHistory.orderId],
+    references: [orders.id],
+  }),
+  user: one(users, {
+    fields: [requestHistory.userId],
+    references: [users.id],
+  }),
+  attachments: many(historyAttachments),
+}));
+
+export const historyAttachmentsRelations = relations(historyAttachments, ({ one }) => ({
+  history: one(requestHistory, {
+    fields: [historyAttachments.historyId],
+    references: [requestHistory.id],
+  }),
+}));
