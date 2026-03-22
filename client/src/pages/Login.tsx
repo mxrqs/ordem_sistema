@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function Login() {
   const [, setLocation] = useLocation();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // If user is already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (user && !authLoading) {
+      setLocation("/my-orders");
+    }
+  }, [user, authLoading, setLocation]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,11 +27,13 @@ export default function Login() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name: name || email.split("@")[0] }),
+        body: JSON.stringify({ email, password: name || "" }),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Login failed");
       }
 
       // Save remember me preference
@@ -31,10 +42,13 @@ export default function Login() {
         localStorage.setItem("rememberedEmail", email);
       }
 
-      // Redirect to dashboard
-      setLocation("/my-orders");
+      // Wait a moment for the cookie to be set, then redirect
+      setTimeout(() => {
+        window.location.href = "/my-orders";
+      }, 500);
     } catch (err) {
-      setError("Falha ao fazer login. Tente novamente.");
+      const errorMessage = err instanceof Error ? err.message : "Falha ao fazer login. Tente novamente.";
+      setError(errorMessage);
       console.error("Login error:", err);
     } finally {
       setIsLoading(false);
@@ -86,13 +100,13 @@ export default function Login() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome (opcional)
+                Senha (opcional)
               </label>
               <input
-                type="text"
+                type="password"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome"
+                placeholder="Sua senha"
                 disabled={isLoading}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:cursor-not-allowed"
               />
@@ -120,13 +134,13 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading || !email}
+              disabled={isLoading || !email || authLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {isLoading || authLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Entrando...
+                  {authLoading ? "Carregando..." : "Entrando..."}
                 </>
               ) : (
                 "Entrar no Sistema"

@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import * as db from "../db";
 import {
   checkUserByEmail,
   registerUser,
@@ -72,19 +73,23 @@ export function registerAuthRoutes(app: Express) {
         return;
       }
 
-      // Create session token
-      const openId = `email_${email.replace(/[^a-z0-9]/gi, "_")}`;
-      const sessionToken = await sdk.createSessionToken(openId, {
-        name,
-        expiresInMs: ONE_YEAR_MS,
-      });
+      // Create session token using the user's actual openId
+      if (authResponse.user?.email) {
+        const user = await db.getUserByEmail(authResponse.user.email);
+        if (user) {
+          const sessionToken = await sdk.createSessionToken(user.openId, {
+            name: authResponse.user.name || email,
+            expiresInMs: ONE_YEAR_MS,
+          });
 
-      // Set session cookie
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, {
-        ...cookieOptions,
-        maxAge: ONE_YEAR_MS,
-      });
+          // Set session cookie
+          const cookieOptions = getSessionCookieOptions(req);
+          res.cookie(COOKIE_NAME, sessionToken, {
+            ...cookieOptions,
+            maxAge: ONE_YEAR_MS,
+          });
+        }
+      }
 
       res.json(authResponse);
     } catch (error) {
@@ -99,7 +104,7 @@ export function registerAuthRoutes(app: Express) {
   /**
    * POST /api/auth/login
    * Login user with email and password
-   * Body: { email: string, password: string }
+   * Body: { email: string, password?: string }
    * Response: { success: boolean, message: string, user?: {...} }
    */
   app.post("/api/auth/login", async (req: Request, res: Response) => {
@@ -107,10 +112,10 @@ export function registerAuthRoutes(app: Express) {
       const { email, password } = req.body;
 
       // Validate inputs
-      if (!email || !password) {
+      if (!email) {
         res.status(400).json({
           success: false,
-          error: "Email and password are required",
+          error: "Email is required",
         });
         return;
       }
@@ -123,19 +128,23 @@ export function registerAuthRoutes(app: Express) {
         return;
       }
 
-      // Create session token
-      const openId = `email_${email.replace(/[^a-z0-9]/gi, "_")}`;
-      const sessionToken = await sdk.createSessionToken(openId, {
-        name: authResponse.user?.name || email,
-        expiresInMs: ONE_YEAR_MS,
-      });
+      // Create session token using the user's actual openId
+      if (authResponse.user?.email) {
+        const user = await db.getUserByEmail(authResponse.user.email);
+        if (user) {
+          const sessionToken = await sdk.createSessionToken(user.openId, {
+            name: authResponse.user.name || email,
+            expiresInMs: ONE_YEAR_MS,
+          });
 
-      // Set session cookie
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, {
-        ...cookieOptions,
-        maxAge: ONE_YEAR_MS,
-      });
+          // Set session cookie
+          const cookieOptions = getSessionCookieOptions(req);
+          res.cookie(COOKIE_NAME, sessionToken, {
+            ...cookieOptions,
+            maxAge: ONE_YEAR_MS,
+          });
+        }
+      }
 
       res.json(authResponse);
     } catch (error) {

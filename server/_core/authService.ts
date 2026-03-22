@@ -116,19 +116,19 @@ export async function registerUser(
 /**
  * Login user with email and password
  * @param email - User email
- * @param password - Plain text password
+ * @param password - Plain text password (optional for users without passwordHash)
  * @returns AuthResponse with success status
  */
 export async function loginUser(
   email: string,
-  password: string
+  password?: string
 ): Promise<AuthResponse> {
   try {
-    // Validate inputs
-    if (!email || !password) {
+    // Validate email
+    if (!email) {
       return {
         success: false,
-        message: "Email e senha são obrigatórios",
+        message: "Email é obrigatório",
         error: "MISSING_FIELDS",
       };
     }
@@ -144,22 +144,28 @@ export async function loginUser(
       };
     }
 
-    // Check if user has a password (email/password login)
-    if (!user.passwordHash) {
-      return {
-        success: false,
-        message: "Este usuário não foi registrado com senha",
-        error: "NO_PASSWORD_SET",
-      };
-    }
+    // If user has a password, require and verify it
+    if (user.passwordHash) {
+      if (!password) {
+        return {
+          success: false,
+          message: "Senha é obrigatória",
+          error: "MISSING_PASSWORD",
+        };
+      }
 
-    // Verify password
-    if (!verifyPassword(password, user.passwordHash)) {
-      return {
-        success: false,
-        message: "Email ou senha incorretos",
-        error: "INVALID_CREDENTIALS",
-      };
+      // Verify password
+      if (!verifyPassword(password, user.passwordHash)) {
+        return {
+          success: false,
+          message: "Email ou senha incorretos",
+          error: "INVALID_CREDENTIALS",
+        };
+      }
+    } else {
+      // User doesn't have password set yet (e.g., admin created manually)
+      // Allow login without password - they can set it later
+      // This supports the flow where admin is created without password
     }
 
     // Update last signed in
