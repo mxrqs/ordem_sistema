@@ -68,7 +68,7 @@ export function registerOAuthRoutes(app: Express) {
         const state = Buffer.from(redirectUri).toString("base64");
         
         // Build OAuth URL
-        const oauthUrl = new URL(`${ENV.oauthPortalUrl}/authorize`);
+        const oauthUrl = new URL(`${ENV.oauthPortalUrl}/oauth/authorize`);
         oauthUrl.searchParams.set("client_id", ENV.appId);
         oauthUrl.searchParams.set("redirect_uri", redirectUri);
         oauthUrl.searchParams.set("state", state);
