@@ -377,3 +377,22 @@
 - [x] Testar metadados de anexos (nome, tipo, tamanho)
 - [x] Testar diferentes tipos de arquivo
 - [x] Testar timestamps de histórico
+
+## Alterações Solicitadas - Sprint 10 (Branding e Login)
+
+### Alteração 1 - Novo Ícone
+- [x] Trocar ícone "OC" pela engrenagem com checklist
+- [x] Atualizar ícone em Home page
+- [x] Fazer upload para CDN
+
+### Alteração 2 - Página de Login Customizada
+- [x] Criar página Login.tsx com Marqs Systems em azul
+- [x] Adicionar opções de login: Microsoft, Email, Telefone
+- [x] Implementar design moderno com gradiente azul
+- [x] Adicionar features (Seguro, Rápido, Fácil)
+- [x] Redirecionar Home para /login
+
+### Alteração 3 - Integração
+- [x] Adicionar rota /login em App.tsx
+- [x] Testar navegação entre Home e Login
+- [x] Verificar que todos os testes passam (20 testes)

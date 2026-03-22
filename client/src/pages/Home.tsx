@@ -19,9 +19,11 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-2xl mx-auto mb-4 animate-pulse">
-            OC
-          </div>
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon_02f23b01.png"
+            alt="Marqs Systems"
+            className="w-16 h-16 mx-auto mb-4 animate-pulse"
+          />
           <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -40,17 +42,19 @@ export default function Home() {
         <div className="text-center mb-12">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-14 h-14 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-2xl">
-              OC
-            </div>
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon_02f23b01.png"
+              alt="Marqs Systems"
+              className="w-14 h-14"
+            />
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
-            Controle de Serviços
+          <h1 className="text-4xl sm:text-5xl font-bold mb-2">
+            <span className="text-blue-600">Marqs Systems</span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Solicitações e checklist
+            Controle de Serviços e Manutenção
           </p>
         </div>
 
@@ -72,8 +76,8 @@ export default function Home() {
 
         {/* Login Button */}
         <div className="mb-8">
-          <a href={getLoginUrl()} className="block">
-            <Button className="w-full bg-primary text-primary-foreground py-6 text-lg font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 rounded-xl">
+          <a href="/login" className="block">
+            <Button className="w-full bg-blue-600 text-white py-6 text-lg font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 rounded-xl">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
