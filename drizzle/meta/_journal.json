@@ -71,6 +71,13 @@
       "when": 1774189314080,
       "tag": "0009_futuristic_nightshade",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1774190571606,
+      "tag": "0010_slow_captain_universe",
+      "breakpoints": true
     }
   ]
 }
