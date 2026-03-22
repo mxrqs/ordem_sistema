@@ -2,6 +2,7 @@ import { useParams, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { PDFViewer } from "@/components/PDFViewer";
 import { ArrowLeft, Send, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ export function OrderDetails() {
   const orderId = parseInt(id || "0", 10);
 
   const [messageText, setMessageText] = useState("");
+  const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -128,18 +130,16 @@ export function OrderDetails() {
     }
     if (entry.fileType === "application/pdf") {
       return (
-        <a
-          href={entry.fileUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-red-50 p-3 rounded-lg hover:bg-red-100 transition"
+        <button
+          onClick={() => setSelectedPdf({ url: entry.fileUrl || "", name: entry.fileName || "document.pdf" })}
+          className="flex items-center gap-2 bg-red-50 p-3 rounded-lg hover:bg-red-100 transition cursor-pointer w-full text-left"
         >
-          <FileText className="w-5 h-5 text-red-600" />
-          <div className="flex-1">
-            <p className="font-medium text-sm text-red-900">{entry.fileName}</p>
-            <p className="text-xs text-red-700">PDF Document</p>
+          <FileText className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-sm text-red-900 truncate">{entry.fileName}</p>
+            <p className="text-xs text-red-700">Clique para visualizar</p>
           </div>
-        </a>
+        </button>
       );
     }
     return (
@@ -278,6 +278,19 @@ export function OrderDetails() {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* PDF Viewer Modal */}
+      {selectedPdf && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl w-full h-full max-w-4xl max-h-96 flex flex-col">
+            <PDFViewer
+              fileUrl={selectedPdf.url}
+              fileName={selectedPdf.name}
+              onClose={() => setSelectedPdf(null)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="bg-white border-t p-4 sm:p-6">
