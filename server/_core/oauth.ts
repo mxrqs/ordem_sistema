@@ -67,8 +67,9 @@ export function registerOAuthRoutes(app: Express) {
         const redirectUri = `${origin}/api/oauth/callback`;
         const state = Buffer.from(redirectUri).toString("base64");
         
-        // Build OAuth URL
-        const oauthUrl = new URL(`${ENV.oauthPortalUrl}/oauth/authorize`);
+        // Build OAuth URL - use correct API endpoint
+        const oauthBaseUrl = "https://api.manus.im";
+        const oauthUrl = new URL(`${oauthBaseUrl}/oauth/authorize`);
         oauthUrl.searchParams.set("client_id", ENV.appId);
         oauthUrl.searchParams.set("redirect_uri", redirectUri);
         oauthUrl.searchParams.set("state", state);
