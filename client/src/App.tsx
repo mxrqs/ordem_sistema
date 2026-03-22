@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Orders from "./pages/Orders";
 import MyOrders from "./pages/MyOrders";
 import FormOS from "./pages/FormOS";
@@ -22,8 +24,10 @@ import { OrderDetails } from "./pages/OrderDetails";
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Login} />
+      <Route path={"/ "} component={Login} />
       <Route path={"/login"} component={Login} />
+      <Route path={"/forgot-password"} component={ForgotPassword} />
+      <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/orders"} component={Orders} />
       <Route path={"/my-orders"} component={MyOrders} />
       <Route path={"/form/os"} component={FormOS} />
