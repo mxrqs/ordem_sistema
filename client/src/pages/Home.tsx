@@ -20,7 +20,7 @@ export default function Home() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon_02f23b01.png"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-gear-checklist-KPGDEAQaZYeVQR4RBmv3hz.webp"
             alt="Marqs Systems"
             className="w-16 h-16 mx-auto mb-4 animate-pulse"
           />
@@ -43,7 +43,7 @@ export default function Home() {
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon_02f23b01.png"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-gear-checklist-KPGDEAQaZYeVQR4RBmv3hz.webp"
               alt="Marqs Systems"
               className="w-14 h-14"
             />

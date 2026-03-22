@@ -53,17 +53,11 @@ export default function Login() {
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon_02f23b01.png"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-gear-checklist-KPGDEAQaZYeVQR4RBmv3hz.webp"
               alt="Marqs Systems"
               className="w-16 h-16"
             />
           </div>
-
-          {/* Title */}
-          <h1 className="text-4xl sm:text-5xl font-bold mb-2">
-            <span className="text-blue-600">Marqs</span>
-            <span className="text-gray-900"> Systems</span>
-          </h1>
           <p className="text-lg text-gray-600">
             Controle de Serviços e Manutenção
           </p>
