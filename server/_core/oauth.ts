@@ -54,7 +54,7 @@ export function registerOAuthRoutes(app: Express) {
   });
 
   // OAuth login endpoints - redirect to Manus OAuth portal
-  const providers = ["email", "phone"];
+  const providers = ["email", "phone", "google"];
   
   for (const provider of providers) {
     app.get(`/api/oauth/${provider}`, (req: Request, res: Response) => {
@@ -84,20 +84,4 @@ export function registerOAuthRoutes(app: Express) {
     });
   }
 
-  // Google OAuth endpoint - simple redirect for demo
-  app.get("/api/oauth/google", (req: Request, res: Response) => {
-    try {
-      // For now, redirect to email login as fallback
-      // In production, you would integrate with real Google OAuth
-      const protocol = req.get("x-forwarded-proto") || "http";
-      const host = req.get("x-forwarded-host") || req.get("host") || "localhost:3000";
-      const origin = `${protocol}://${host}`;
-      
-      // Redirect to email login as fallback
-      res.redirect(302, `${origin}/api/oauth/email`);
-    } catch (error) {
-      console.error("[OAuth] Google redirect failed:", error);
-      res.redirect(302, "/?error=oauth_redirect_failed");
-    }
-  });
 }
