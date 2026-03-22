@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-export default function Login() {
+export default function Register() {
   const [, setLocation] = useLocation();
   const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // If user is already authenticated, redirect to dashboard
   useEffect(() => {
@@ -18,44 +20,76 @@ export default function Login() {
     }
   }, [user, authLoading, setLocation]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setIsLoading(true);
 
     try {
-      if (!email || !password) {
-        setError("Email e senha são obrigatórios");
+      // Validation
+      if (!email || !password || !confirmPassword || !name) {
+        setError("Todos os campos são obrigatórios");
         setIsLoading(false);
         return;
       }
 
-      const response = await fetch("/api/auth/login", {
+      if (password !== confirmPassword) {
+        setError("As senhas não coincidem");
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        setError("A senha deve ter no mínimo 6 caracteres");
+        setIsLoading(false);
+        return;
+      }
+
+      if (name.length < 3) {
+        setError("O nome deve ter no mínimo 3 caracteres");
+        setIsLoading(false);
+        return;
+      }
+
+      // First check if email exists
+      const checkResponse = await fetch("/api/auth/check-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
+      });
+
+      const checkData = await checkResponse.json();
+
+      if (checkData.exists) {
+        setError("Este email já está cadastrado");
+        setIsLoading(false);
+        return;
+      }
+
+      // Register new user
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Email ou senha incorretos");
+        throw new Error(data.message || "Falha ao cadastrar. Tente novamente.");
       }
 
-      // Save remember me preference
-      if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-        localStorage.setItem("rememberedEmail", email);
-      }
-
-      // Wait a moment for the cookie to be set, then redirect
+      setSuccess("Cadastro realizado com sucesso! Redirecionando para login...");
+      
+      // Redirect to login after 2 seconds
       setTimeout(() => {
-        window.location.href = "/my-orders";
-      }, 500);
+        setLocation("/");
+      }, 2000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Falha ao fazer login. Tente novamente.";
+      const errorMessage = err instanceof Error ? err.message : "Falha ao cadastrar. Tente novamente.";
       setError(errorMessage);
-      console.error("Login error:", err);
+      console.error("Register error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -81,17 +115,32 @@ export default function Login() {
             Controle de Manutenção
           </h1>
           <p className="text-gray-600">
-            Solicitações e checklist
+            Cadastro de novo usuário
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Register Card */}
         <div className="bg-white rounded-lg shadow-xl p-8 animate-fade-in-delay">
-          {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-4 mb-6">
+          {/* Register Form */}
+          <form onSubmit={handleRegister} className="space-y-4 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
+                Nome de Usuário <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome"
+                required
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -112,7 +161,22 @@ export default function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Sua senha"
+                placeholder="Mínimo 6 caracteres"
+                disabled={isLoading}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirmar Senha <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirme sua senha"
                 disabled={isLoading}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:cursor-not-allowed"
@@ -125,32 +189,24 @@ export default function Login() {
               </div>
             )}
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="rememberMe"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isLoading}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
-              />
-              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700 cursor-pointer">
-                Manter conectado
-              </label>
-            </div>
+            {success && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                {success}
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={isLoading || !email || !password || authLoading}
+              disabled={isLoading || authLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
             >
               {isLoading || authLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {authLoading ? "Carregando..." : "Entrando..."}
+                  {authLoading ? "Carregando..." : "Cadastrando..."}
                 </>
               ) : (
-                "Entrar no Sistema"
+                "Cadastrar"
               )}
             </button>
           </form>
@@ -162,16 +218,16 @@ export default function Login() {
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
 
-          {/* Registration Link */}
+          {/* Login Link */}
           <div className="text-center">
             <p className="text-gray-700 mb-3">
-              Ainda não tem conta? Crie uma agora:
+              Já tem uma conta?
             </p>
             <button
-              onClick={() => setLocation("/register")}
+              onClick={() => setLocation("/")}
               className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-4 rounded-lg transition duration-200"
             >
-              Cadastrar novo usuário
+              Voltar para login
             </button>
           </div>
         </div>

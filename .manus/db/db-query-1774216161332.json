@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO users (openId, email, name, passwordHash, role, createdAt, updatedAt, lastSignedIn) VALUES ('marcus-admin', 'marcusvynicius135@gmail.com', 'marcus', '63c4596acfd2b7fc4b649f85f368ebc6e0d77e3eddc53778fc23d5e2f30c933a0d99c7d1acec7a56531187b2aff01f7d1b9a636eefbe709b52b321bd8c2e3e46:178ff7113a8a69bc75069b09b0c84c2f3b3269c7e3cb6842741e5f2c8d3ff86e', 'admin', NOW(), NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute INSERT INTO users (openId, email, name, passwordHash, role, createdAt, updatedAt, lastSignedIn) VALUES ('marcus-admin', 'marcusvynicius135@gmail.com', 'marcus', '63c4596acfd2b7fc4b649f85f368ebc6e0d77e3eddc53778fc23d5e2f30c933a0d99c7d1acec7a56531187b2aff01f7d1b9a636eefbe709b52b321bd8c2e3e46:178ff7113a8a69bc75069b09b0c84c2f3b3269c7e3cb6842741e5f2c8d3ff86e', 'admin', NOW(), NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 429
+}

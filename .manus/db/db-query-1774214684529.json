@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, email, name, passwordHash, role FROM users WHERE email='marcusvynicius135@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute SELECT id, email, name, passwordHash, role FROM users WHERE email='marcusvynicius135@gmail.com';",
+  "rows": [
+    {
+      "id": "1590025",
+      "email": "marcusvynicius135@gmail.com",
+      "name": "marcusvynicius135",
+      "passwordHash": "659dcd6bffec68d6988691dc197612eb7cd7b0b79933521264a583ac99876a52:b2328174e0a63ca54b6cba41b461da554ca361e0b24f2b22dea778a7d638afda0544acf7c4a2e597448490a7abfd17a7711f8b7a27419db744be8ab7ef58e405",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tpasswordHash\trole\n1590025\tmarcusvynicius135@gmail.com\tmarcusvynicius135\t659dcd6bffec68d6988691dc197612eb7cd7b0b79933521264a583ac99876a52:b2328174e0a63ca54b6cba41b461da554ca361e0b24f2b22dea778a7d638afda0544acf7c4a2e597448490a7abfd17a7711f8b7a27419db744be8ab7ef58e405\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 357
+}
