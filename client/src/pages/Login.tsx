@@ -53,14 +53,11 @@ export default function Login() {
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-gear-checklist-KPGDEAQaZYeVQR4RBmv3hz.webp"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445611591/kYpwHKpJafrLckpe6FrLBC/marqs-icon-new-3XhsZT5cmqSUQVmb8pxSAQ.webp"
               alt="Marqs Systems"
               className="w-16 h-16"
             />
           </div>
-          <p className="text-lg text-gray-600">
-            Controle de Serviços e Manutenção
-          </p>
         </div>
 
         {/* Login Card */}
