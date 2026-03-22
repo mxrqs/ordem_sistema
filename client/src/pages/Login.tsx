@@ -228,7 +228,7 @@ export default function Login() {
         {/* Footer */}
         <div className="text-center animate-fade-in" style={{ animationDelay: "1.3s" }}>
           <p className="text-xs text-gray-500">
-            © 2026 Marqs Systems. Todos os direitos reservados.
+            © 2026 Todos os direitos reservados.
           </p>
         </div>
       </div>
