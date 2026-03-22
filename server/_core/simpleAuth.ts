@@ -15,21 +15,25 @@ export function registerSimpleAuthRoutes(app: Express) {
         return;
       }
 
-      // Create a simple openId from email (for demo purposes)
-      const openId = `email_${email.replace(/[^a-z0-9]/gi, "_")}`;
+      // First, try to find existing user by email
+      const existingUser = await db.getUserByEmail(email);
+      
+      // Use existing user's openId if found, otherwise create new one
+      const openId = existingUser?.openId || `email_${email.replace(/[^a-z0-9]/gi, "_")}`;
 
       // Upsert user in database
       await db.upsertUser({
         openId,
-        name: name || email.split("@")[0],
+        name: name || existingUser?.name || email.split("@")[0],
         email,
         loginMethod: "email",
         lastSignedIn: new Date(),
+        role: existingUser?.role, // Preserve existing role
       });
 
       // Create session token
       const sessionToken = await sdk.createSessionToken(openId, {
-        name: name || email.split("@")[0],
+        name: name || existingUser?.name || email.split("@")[0],
         expiresInMs: ONE_YEAR_MS,
       });
 

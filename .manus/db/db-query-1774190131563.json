@@ -1,0 +1,24 @@
+{
+  "query": "SELECT id, openId, email, name, role FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute SELECT id, openId, email, name, role FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1590025",
+      "openId": "marcus-admin-001",
+      "email": "marcusvynicius135@gmail.com",
+      "name": "marcus",
+      "role": "admin"
+    },
+    {
+      "id": "1620001",
+      "openId": "email_marcusvynicius135_gmail_com",
+      "email": "marcusvynicius135@gmail.com",
+      "name": "marcus",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\temail\tname\trole\n1590025\tmarcus-admin-001\tmarcusvynicius135@gmail.com\tmarcus\tadmin\n1620001\temail_marcusvynicius135_gmail_com\tmarcusvynicius135@gmail.com\tmarcus\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 488
+}

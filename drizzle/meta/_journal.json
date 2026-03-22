@@ -50,6 +50,27 @@
       "when": 1774145854601,
       "tag": "0006_sleepy_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1774186242319,
+      "tag": "0007_bouncy_meteorite",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1774187158739,
+      "tag": "0008_secret_joystick",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1774189314080,
+      "tag": "0009_futuristic_nightshade",
+      "breakpoints": true
     }
   ]
 }
