@@ -58,6 +58,7 @@ export default function Login() {
               className="w-16 h-16"
             />
           </div>
+          {/* Removed title to keep it clean */}
         </div>
 
         {/* Login Card */}
