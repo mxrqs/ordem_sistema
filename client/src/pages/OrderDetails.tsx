@@ -3,6 +3,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { PDFViewer } from "@/components/PDFViewer";
+import { ItemsUsedTab } from "@/components/ItemsUsedTab";
+import { MaintenanceAlertsTab } from "@/components/MaintenanceAlertsTab";
 import { ArrowLeft, Send, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -32,6 +34,7 @@ export function OrderDetails() {
   const [messageText, setMessageText] = useState("");
   const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
   const [showPdfCarousel, setShowPdfCarousel] = useState(false);
+  const [activeTab, setActiveTab] = useState<"history" | "items" | "alerts">("history");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -195,47 +198,89 @@ export function OrderDetails() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b p-4 sm:p-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setLocation("/my-orders")}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="font-bold text-lg sm:text-xl">{order.title}</h1>
-            <p className="text-xs sm:text-sm text-gray-600">
-              {order.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"}
-              {order.osNumber && ` • ${order.osNumber}`}
+      <div className="bg-white border-b">
+        <div className="p-4 sm:p-6 flex items-center justify-between border-b">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setLocation("/my-orders")}
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="font-bold text-lg sm:text-xl">{order.title}</h1>
+              <p className="text-xs sm:text-sm text-gray-600">
+                {order.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"}
+                {order.osNumber && ` • ${order.osNumber}`}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs sm:text-sm font-medium">
+              Status:{" "}
+              <span
+                className={
+                  order.status === "completed"
+                    ? "text-green-600"
+                    : order.status === "in_process"
+                    ? "text-blue-600"
+                    : "text-gray-600"
+                }
+              >
+                {order.status === "completed"
+                  ? "Concluído"
+                  : order.status === "in_process"
+                  ? "Em Processo"
+                  : "Não Iniciado"}
+              </span>
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs sm:text-sm font-medium">
-            Status:{" "}
-            <span
-              className={
-                order.status === "completed"
-                  ? "text-green-600"
-                  : order.status === "in_process"
-                  ? "text-blue-600"
-                  : "text-gray-600"
-              }
-            >
-              {order.status === "completed"
-                ? "Concluído"
-                : order.status === "in_process"
-                ? "Em Processo"
-                : "Não Iniciado"}
-            </span>
-          </p>
+
+        {/* Tabs */}
+        <div className="flex gap-0 px-4 sm:px-6 border-b">
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`px-4 py-3 font-medium text-sm border-b-2 transition ${
+              activeTab === "history"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            Histórico
+          </button>
+          {order.type === "OS" && (
+            <>
+              <button
+                onClick={() => setActiveTab("items")}
+                className={`px-4 py-3 font-medium text-sm border-b-2 transition ${
+                  activeTab === "items"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Itens Utilizados
+              </button>
+              <button
+                onClick={() => setActiveTab("alerts")}
+                className={`px-4 py-3 font-medium text-sm border-b-2 transition ${
+                  activeTab === "alerts"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Observações
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Messages Container */}
+      {/* Content Container */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-        {history.length === 0 ? (
+        {activeTab === "history" && (
+          <>
+            {history.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <p>Nenhuma mensagem ou evento ainda</p>
           </div>
@@ -289,8 +334,18 @@ export function OrderDetails() {
               </div>
             );
           })
+            )}
+            <div ref={messagesEndRef} />
+          </>
         )}
-        <div ref={messagesEndRef} />
+
+        {activeTab === "items" && order.type === "OS" && (
+          <ItemsUsedTab orderId={orderId} isRequester={user?.id === order.userId} />
+        )}
+
+        {activeTab === "alerts" && order.type === "OS" && (
+          <MaintenanceAlertsTab orderId={orderId} placa={order.placa || ""} />
+        )}
       </div>
 
       {/* PDF Viewer Carousel Modal */}

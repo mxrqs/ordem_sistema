@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `itemsUsed` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`itemName` varchar(255) NOT NULL,\n\t`quantity` int NOT NULL DEFAULT 1,\n\t`unit` varchar(50) NOT NULL DEFAULT 'un',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `itemsUsed_id` PRIMARY KEY(`id`)\n);\n\nCREATE TABLE `maintenanceAlerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`placa` varchar(20) NOT NULL,\n\t`description` text NOT NULL,\n\t`status` enum('pending','resolved') NOT NULL DEFAULT 'pending',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`resolvedAt` timestamp,\n\tCONSTRAINT `maintenanceAlerts_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 5wwPyhjRUjVTo9s.root --database kYpwHKpJafrLckpe6FrLBC --execute CREATE TABLE `itemsUsed` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`itemName` varchar(255) NOT NULL,\n\t`quantity` int NOT NULL DEFAULT 1,\n\t`unit` varchar(50) NOT NULL DEFAULT 'un',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `itemsUsed_id` PRIMARY KEY(`id`)\n);\n\nCREATE TABLE `maintenanceAlerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`orderId` int NOT NULL,\n\t`placa` varchar(20) NOT NULL,\n\t`description` text NOT NULL,\n\t`status` enum('pending','resolved') NOT NULL DEFAULT 'pending',\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`resolvedAt` timestamp,\n\tCONSTRAINT `maintenanceAlerts_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1731
+}

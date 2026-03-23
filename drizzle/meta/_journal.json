@@ -78,6 +78,20 @@
       "when": 1774190571606,
       "tag": "0010_slow_captain_universe",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1774293218784,
+      "tag": "0011_noisy_misty_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1774293317092,
+      "tag": "0012_harsh_songbird",
+      "breakpoints": true
     }
   ]
 }

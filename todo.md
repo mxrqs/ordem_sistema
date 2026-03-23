@@ -396,3 +396,51 @@
 - [x] Adicionar rota /login em App.tsx
 - [x] Testar navegação entre Home e Login
 - [x] Verificar que todos os testes passam (20 testes)
+
+
+## Alterações Solicitadas - Sprint 10 (Finalização OS e Observações)
+
+### Alteração 1 - Aba de Finalizar OS com Itens Utilizados
+- [ ] Criar tabela `order_items` para rastrear itens utilizados em cada OS
+- [ ] Adicionar campos: id, order_id, item_name, quantity, unit, created_at
+- [ ] Implementar backend route POST `/api/orders/:id/items` para adicionar itens
+- [ ] Implementar backend route GET `/api/orders/:id/items` para listar itens
+- [ ] Implementar backend route DELETE `/api/orders/:id/items/:itemId` para remover itens
+- [ ] Criar UI de formulário para adicionar itens (nome, quantidade, unidade)
+- [ ] Implementar validação: apenas solicitante pode adicionar itens
+- [ ] Criar aba "Finalizar" na página OrderDetails
+- [ ] Exibir lista de itens adicionados
+- [ ] Testar permissões e fluxo completo
+
+### Alteração 2 - Sinalização em Gerenciar Ordens
+- [ ] Adicionar campo `has_items_reported` na tabela `orders`
+- [ ] Atualizar campo quando solicitante adiciona itens
+- [ ] Criar indicador visual em AdminOrders (badge, ícone, cor)
+- [ ] Exibir "✓ Itens reportados" ou similar quando items foram adicionados
+- [ ] Implementar filtro para mostrar apenas ordens com itens reportados
+- [ ] Testar indicador em diferentes estados
+
+### Alteração 3 - Observações para Próxima Manutenção
+- [ ] Criar tabela `maintenance_alerts` com campos: id, vehicle_id, description, status, created_at, order_id
+- [ ] Adicionar campo "Observações para Próxima Manutenção" no FormOS (textarea)
+- [ ] Implementar backend route POST `/api/maintenance-alerts` para criar alertas
+- [ ] Implementar backend route GET `/api/maintenance-alerts/:vehicleId` para buscar alertas
+- [ ] Implementar backend route PATCH `/api/maintenance-alerts/:alertId` para atualizar status
+- [ ] Criar componente MaintenanceAlerts para exibir alertas pendentes
+- [ ] Exibir alerta visual no topo da OrderDetails se houver pendências
+- [ ] Permitir marcar alerta como resolvido dentro da OS
+- [ ] Testar busca automática de alertas ao abrir OS
+
+### Alteração 4 - Integração Completa
+- [ ] Testar: Solicitante adiciona itens em Finalizar OS
+- [ ] Testar: Admin vê indicador em Gerenciar Ordens
+- [ ] Testar: Mecânico adiciona observação para próxima manutenção
+- [ ] Testar: Próxima OS do mesmo veículo mostra alertas pendentes
+- [ ] Testar: Alertas podem ser marcados como resolvidos
+- [ ] Testar em desktop e mobile
+
+### Testes
+- [ ] Criar testes vitest para procedures de itens
+- [ ] Criar testes vitest para procedures de alertas
+- [ ] Testar validação de permissões (apenas solicitante)
+- [ ] Testar cascata de dados (alertas com veículo)

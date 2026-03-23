@@ -45,6 +45,8 @@ export const orders = mysqlTable("orders", {
   contrato: varchar("contrato", { length: 100 }),
   categoria: varchar("categoria", { length: 50 }),
   osNumber: varchar("osNumber", { length: 50 }), // Real OS number
+  hasItemsReported: boolean("hasItemsReported").default(false).notNull(), // Flag for items reported by requester
+  maintenanceNotes: text("maintenanceNotes"), // Notes for next maintenance
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -215,5 +217,54 @@ export const historyAttachmentsRelations = relations(historyAttachments, ({ one 
   history: one(requestHistory, {
     fields: [historyAttachments.historyId],
     references: [requestHistory.id],
+  }),
+}));
+
+/**
+ * Maintenance alerts for tracking pending maintenance items
+ * Stores observations and recommendations for future maintenance
+ */
+export const maintenanceAlerts = mysqlTable("maintenanceAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(), // OS where the alert was created
+  placa: varchar("placa", { length: 20 }).notNull(), // Vehicle plate for quick lookup
+  description: text("description").notNull(), // Alert description
+  status: mysqlEnum("status", ["pending", "resolved"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+});
+
+export type MaintenanceAlert = typeof maintenanceAlerts.$inferSelect;
+export type InsertMaintenanceAlert = typeof maintenanceAlerts.$inferInsert;
+
+/**
+ * Items used in service orders (OS)
+ * Tracks what items were used during maintenance
+ */
+export const itemsUsed = mysqlTable("itemsUsed", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(), // OS where items were used
+  itemName: varchar("itemName", { length: 255 }).notNull(), // Item description
+  quantity: int("quantity").default(1).notNull(), // Quantity used
+  unit: varchar("unit", { length: 50 }).default("un").notNull(), // Unit (un, l, kg, m, etc)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ItemUsed = typeof itemsUsed.$inferSelect;
+export type InsertItemUsed = typeof itemsUsed.$inferInsert;
+
+// Relations for maintenance alerts
+export const maintenanceAlertsRelations = relations(maintenanceAlerts, ({ one }) => ({
+  order: one(orders, {
+    fields: [maintenanceAlerts.orderId],
+    references: [orders.id],
+  }),
+}));
+
+// Relations for items used
+export const itemsUsedRelations = relations(itemsUsed, ({ one }) => ({
+  order: one(orders, {
+    fields: [itemsUsed.orderId],
+    references: [orders.id],
   }),
 }));

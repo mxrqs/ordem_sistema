@@ -9,9 +9,11 @@ import { eq, desc } from "drizzle-orm";
 import { sendEmailNotification, getStatusChangeMessage, getPdfAttachedMessage } from "./_core/email";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
+import { itemsAndAlertsRouter } from "./routers/itemsAndAlerts";
 
 export const appRouter = router({
   system: systemRouter,
+  itemsAndAlerts: itemsAndAlertsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
