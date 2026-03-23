@@ -31,6 +31,7 @@ export function OrderDetails() {
 
   const [messageText, setMessageText] = useState("");
   const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
+  const [showPdfCarousel, setShowPdfCarousel] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +49,19 @@ export function OrderDetails() {
   // Mutations
   const addMessageMutation = trpc.history.addMessage.useMutation();
   const uploadAttachmentMutation = trpc.history.uploadAttachment.useMutation();
+
+  // Collect all PDFs from history
+  const allPdfs = history
+    .filter((entry) => entry.type === "attachment" && entry.fileType === "application/pdf")
+    .map((entry) => ({
+      url: entry.fileUrl || "",
+      name: entry.fileName || "PDF",
+    }));
+
+  const handleOpenPdfCarousel = (pdf: { url: string; name: string }) => {
+    setSelectedPdf(pdf);
+    setShowPdfCarousel(true);
+  };
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -131,7 +145,7 @@ export function OrderDetails() {
     if (entry.fileType === "application/pdf") {
       return (
         <button
-          onClick={() => setSelectedPdf({ url: entry.fileUrl || "", name: entry.fileName || "document.pdf" })}
+          onClick={() => handleOpenPdfCarousel({ url: entry.fileUrl || "", name: entry.fileName || "document.pdf" })}
           className="flex items-center gap-2 bg-red-50 p-3 rounded-lg hover:bg-red-100 transition cursor-pointer w-full text-left"
         >
           <FileText className="w-5 h-5 text-red-600 flex-shrink-0" />
@@ -279,14 +293,16 @@ export function OrderDetails() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* PDF Viewer Modal */}
-      {selectedPdf && (
+      {/* PDF Viewer Carousel Modal */}
+      {showPdfCarousel && allPdfs.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full h-full max-w-4xl max-h-96 flex flex-col">
             <PDFViewer
-              fileUrl={selectedPdf.url}
-              fileName={selectedPdf.name}
-              onClose={() => setSelectedPdf(null)}
+              pdfs={allPdfs}
+              onClose={() => {
+                setShowPdfCarousel(false);
+                setSelectedPdf(null);
+              }}
             />
           </div>
         </div>
