@@ -112,6 +112,7 @@ export default function MyOrders() {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [categoriaFilter, setCategoriaFilter] = useState<string>("");
+  const [showOnlyPendingAlerts, setShowOnlyPendingAlerts] = useState(false);
   const [completeOSOpen, setCompleteOSOpen] = useState(false);
   const [selectedOrderForCompletion, setSelectedOrderForCompletion] = useState<{ id: number; title: string } | null>(null);
   const ITEMS_PER_PAGE = 10;
@@ -194,6 +195,11 @@ export default function MyOrders() {
     filteredOrders = filteredOrders.filter((order) => order.categoria === categoriaFilter);
   }
   
+  // Apply pending alerts filter for OS
+  if (activeTab === "OS" && showOnlyPendingAlerts) {
+    filteredOrders = filteredOrders.filter((order) => (order as any).pendingAlertsCount > 0);
+  }
+  
   // Sort by creation date (newest first)
   filteredOrders = [...filteredOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
@@ -262,8 +268,9 @@ export default function MyOrders() {
                 </div>
               </div>
               {activeTab === "OS" && (
-                <div>
-                  <label className="text-sm font-semibold text-foreground block mb-2">Filtrar por Categoria:</label>
+                <>
+                  <div>
+                    <label className="text-sm font-semibold text-foreground block mb-2">Filtrar por Categoria:</label>
                   <select
                     value={categoriaFilter}
                     onChange={(e) => {
@@ -278,6 +285,22 @@ export default function MyOrders() {
                     <option value="Reforma">Reforma</option>
                   </select>
                 </div>
+                <div>
+                  <label className="text-sm font-semibold text-foreground block mb-2">Alertas:</label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showOnlyPendingAlerts}
+                      onChange={(e) => {
+                        setShowOnlyPendingAlerts(e.target.checked);
+                        setCurrentPage(1);
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-muted-foreground">Apenas com pendências</span>
+                  </label>
+                  </div>
+                </>
               )}
             </div>
           </div>
