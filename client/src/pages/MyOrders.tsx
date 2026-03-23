@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import CompleteOS from "@/components/CompleteOS";
+import { AlertBadge } from "@/components/AlertBadge";
 import { useState, useEffect } from "react";
 
 function PhotoGallery({ orderId }: { orderId: number }) {
@@ -341,6 +342,11 @@ export default function MyOrders() {
                             {order.type === "OS" ? "Ordem de Serviço" : "Ordem de Compra"} #{order.id}
                           </h3>
                           <p className="text-sm text-muted-foreground">{order.title || "Sem título"}</p>
+                          {order.type === "OS" && (order as any).pendingAlertsCount > 0 && (
+                            <div className="mt-2">
+                              <AlertBadge count={(order as any).pendingAlertsCount} />
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div

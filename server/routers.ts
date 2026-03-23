@@ -4,8 +4,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
-import { orders, orderItems, checklists, notifications, users, orderPhotos, requestHistory, historyAttachments } from "../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { orders, orderItems, checklists, notifications, users, orderPhotos, requestHistory, historyAttachments, maintenanceAlerts } from "../drizzle/schema";
+import { eq, desc, and } from "drizzle-orm";
 import { sendEmailNotification, getStatusChangeMessage, getPdfAttachedMessage } from "./_core/email";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -109,7 +109,31 @@ export const appRouter = router({
       const db = await getDb();
       if (!db) return [];
       // Show all orders for the current user (both admin and regular users see their own orders)
-      return db.select().from(orders).where(eq(orders.userId, ctx.user.id));
+      const userOrders = await db.select().from(orders).where(eq(orders.userId, ctx.user.id));
+      
+      // Add pending alerts count for each OS
+      const ordersWithAlerts = await Promise.all(
+        userOrders.map(async (order) => {
+          if (order.type === "OS" && order.placa) {
+            const alerts = await db.select().from(maintenanceAlerts).where(
+              and(
+                eq(maintenanceAlerts.placa, order.placa),
+                eq(maintenanceAlerts.status, "pending")
+              )
+            );
+            return {
+              ...order,
+              pendingAlertsCount: alerts.length,
+            };
+          }
+          return {
+            ...order,
+            pendingAlertsCount: 0,
+          };
+        })
+      );
+      
+      return ordersWithAlerts;
     }),
 
     // Get all orders with user info (admin only) - for admin dashboard
