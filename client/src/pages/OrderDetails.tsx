@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PDFViewer } from "@/components/PDFViewer";
 import { ItemsUsedTab } from "@/components/ItemsUsedTab";
 import { MaintenanceAlertsTab } from "@/components/MaintenanceAlertsTab";
+import { PendingAlertsHeader } from "@/components/PendingAlertsHeader";
 import { ArrowLeft, Send, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -47,6 +48,12 @@ export function OrderDetails() {
   const { data: history = [], refetch: refetchHistory } = trpc.history.getByOrder.useQuery(
     { orderId },
     { enabled: !!orderId }
+  );
+
+  // Fetch pending alerts for vehicle
+  const { data: pendingAlerts = [], isLoading: alertsLoading } = trpc.itemsAndAlerts.alerts.getByPlaca.useQuery(
+    { placa: order?.placa || "" },
+    { enabled: !!order?.placa && order?.type === "OS" }
   );
 
   // Mutations
@@ -275,6 +282,11 @@ export function OrderDetails() {
           )}
         </div>
       </div>
+
+      {/* Pending Alerts Banner */}
+      {activeTab === "history" && order?.type === "OS" && (
+        <PendingAlertsHeader alerts={pendingAlerts} isLoading={alertsLoading} />
+      )}
 
       {/* Content Container */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
