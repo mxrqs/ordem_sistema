@@ -6,6 +6,7 @@ import { PDFViewer } from "@/components/PDFViewer";
 import { ItemsUsedTab } from "@/components/ItemsUsedTab";
 import { MaintenanceAlertsTab } from "@/components/MaintenanceAlertsTab";
 import { PendingAlertsHeader } from "@/components/PendingAlertsHeader";
+import CompleteOS from "@/components/CompleteOS";
 import { ArrowLeft, Send, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ export function OrderDetails() {
   const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
   const [showPdfCarousel, setShowPdfCarousel] = useState(false);
   const [activeTab, setActiveTab] = useState<"history" | "items" | "alerts">("history");
+  const [completeOSOpen, setCompleteOSOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -222,25 +224,35 @@ export function OrderDetails() {
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs sm:text-sm font-medium">
-              Status:{" "}
-              <span
-                className={
-                  order.status === "completed"
-                    ? "text-green-600"
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-xs sm:text-sm font-medium">
+                Status:{" "}
+                <span
+                  className={
+                    order.status === "completed"
+                      ? "text-green-600"
+                      : order.status === "in_process"
+                      ? "text-blue-600"
+                      : "text-gray-600"
+                  }
+                >
+                  {order.status === "completed"
+                    ? "Concluído"
                     : order.status === "in_process"
-                    ? "text-blue-600"
-                    : "text-gray-600"
-                }
+                    ? "Em Processo"
+                    : "Não Iniciado"}
+                </span>
+              </p>
+            </div>
+            {order.status !== "completed" && (
+              <Button
+                onClick={() => setCompleteOSOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
               >
-                {order.status === "completed"
-                  ? "Concluído"
-                  : order.status === "in_process"
-                  ? "Em Processo"
-                  : "Não Iniciado"}
-              </span>
-            </p>
+                Finalizar OS
+              </Button>
+            )}
           </div>
         </div>
 
@@ -422,6 +434,19 @@ export function OrderDetails() {
           </div>
         </div>
       </div>
+
+      {/* Complete OS Modal */}
+      <CompleteOS
+        orderId={orderId}
+        orderTitle={order.title}
+        isOpen={completeOSOpen}
+        onClose={() => setCompleteOSOpen(false)}
+        onSuccess={() => {
+          setCompleteOSOpen(false);
+          // Refresh order data
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
