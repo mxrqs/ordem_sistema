@@ -52,10 +52,7 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
   };
 
   const handleSubmit = async () => {
-    if (items.length === 0) {
-      toast.error("Adicione pelo menos um item");
-      return;
-    }
+    // Items are now optional - allow finalization without items
 
     setIsSubmitting(true);
     try {
@@ -181,7 +178,7 @@ export default function CompleteOS({ orderId, orderTitle, isOpen, onClose, onSuc
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={items.length === 0 || isSubmitting}
+              disabled={isSubmitting}
               className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
             >
               {isSubmitting ? "Finalizando..." : "Finalizar OS"}
