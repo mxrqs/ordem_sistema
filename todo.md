@@ -444,3 +444,27 @@
 - [ ] Criar testes vitest para procedures de alertas
 - [ ] Testar validação de permissões (apenas solicitante)
 - [ ] Testar cascata de dados (alertas com veículo)
+
+
+## Alterações Solicitadas - Sprint 11 (Filtro de Pendências)
+
+### Alteração 1 - Remover campo de itens do modal de finalização
+- [x] Verificar modal CompleteOS.tsx
+- [x] Confirmar que pede apenas observações (não itens)
+- [x] Adicionar informação sobre aba "Itens Utilizados"
+- [x] Testar funcionalidade do modal
+
+### Alteração 2 - Adicionar filtro de pendências em Gerenciar Ordens
+- [x] Adicionar checkbox "Apenas com pendências de manutenção" em AdminOrders
+- [x] Filtro aparece apenas na aba Ordens de Serviço (OS)
+- [x] Integrar com lógica de filtragem existente
+- [x] Atualizar backend para retornar pendingAlertsCount
+- [x] Testar filtro com múltiplas ordens
+
+### Testes
+- [x] Criar testes vitest para filtro de pendências
+- [x] Testar criação de alertas de manutenção
+- [x] Testar contagem de alertas pendentes
+- [x] Testar que alertas resolvidos não são contados
+- [x] Testar filtragem de ordens com pendências
+- [x] Todos os testes passando (4/4)

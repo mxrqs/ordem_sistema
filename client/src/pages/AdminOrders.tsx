@@ -113,6 +113,7 @@ export default function AdminOrders() {
   const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set()); // Filter by status
   const [dateFilter, setDateFilter] = useState<string>("all"); // Filter by date range
   const [editingOrderNumber, setEditingOrderNumber] = useState<{ orderId: number; value: string } | null>(null);
+  const [filterPendingAlerts, setFilterPendingAlerts] = useState(false); // Filter by pending alerts
   const ITEMS_PER_PAGE = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -215,6 +216,11 @@ export default function AdminOrders() {
   // Apply status filters if any are selected
   if (statusFilters.size > 0) {
     filteredOrders = filteredOrders.filter((order) => statusFilters.has(order.status));
+  }
+  
+  // Apply pending alerts filter
+  if (filterPendingAlerts) {
+    filteredOrders = filteredOrders.filter((order) => (order.pendingAlertsCount || 0) > 0);
   }
   
   // Apply date filters
@@ -388,6 +394,24 @@ export default function AdminOrders() {
               )}
             </div>
           </div>
+
+          {/* Pending Alerts Filter - Only for OS tab */}
+          {activeTab === "OS" && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filterPendingAlerts}
+                  onChange={(e) => {
+                    setFilterPendingAlerts(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  className="w-4 h-4 rounded border-blue-300 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-blue-900">Apenas com pendências de manutenção</span>
+              </label>
+            </div>
+          )}
 
           {/* Date Filters */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-border">

@@ -144,14 +144,25 @@ export const appRouter = router({
       const db = await getDb();
       if (!db) return [];
       const allOrders = await db.select().from(orders);
-      // Fetch user info for each order
+      // Fetch user info and pending alerts for each order
       const ordersWithUser = await Promise.all(
         allOrders.map(async (order) => {
           const userResult = await db.select().from(users).where(eq(users.id, order.userId)).limit(1);
+          let pendingAlertsCount = 0;
+          if (order.type === "OS" && order.placa) {
+            const alerts = await db.select().from(maintenanceAlerts).where(
+              and(
+                eq(maintenanceAlerts.placa, order.placa),
+                eq(maintenanceAlerts.status, "pending")
+              )
+            );
+            pendingAlertsCount = alerts.length;
+          }
           return {
             ...order,
             userName: userResult.length > 0 ? userResult[0].name : "Desconhecido",
             userEmail: userResult.length > 0 ? userResult[0].email : null,
+            pendingAlertsCount,
           };
         })
       );
@@ -381,6 +392,7 @@ export const appRouter = router({
           quantity: z.number().int().positive(),
           unitValue: z.string(),
         })),
+        maintenanceNotes: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const db = await getDb();
@@ -414,7 +426,21 @@ export const appRouter = router({
           // Update order status to completed
           await db.update(orders).set({
             status: "completed",
+            maintenanceNotes: input.maintenanceNotes || null,
           }).where(eq(orders.id, input.orderId));
+
+          // Create maintenance alert if notes provided
+          if (input.maintenanceNotes?.trim()) {
+            const order = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+            if (order.length > 0 && order[0].placa) {
+              await db.insert(maintenanceAlerts).values({
+                placa: order[0].placa,
+                description: input.maintenanceNotes,
+                status: "pending",
+                orderId: input.orderId,
+              });
+            }
+          }
 
           return { success: true, message: "OS finalizada com sucesso" };
         } catch (error) {
