@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, X, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { generatePDFThumbnail } from "@/lib/pdfThumbnail";
 
 interface PDF {
   url: string;
@@ -15,6 +16,31 @@ interface PDFViewerProps {
 export function PDFViewer({ pdfs, onClose }: PDFViewerProps) {
   const [activeTab, setActiveTab] = useState<"view" | "download">("view");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [thumbnails, setThumbnails] = useState<string[]>([]);
+  const [loadingThumbnails, setLoadingThumbnails] = useState(true);
+
+  // Generate thumbnails on mount
+  useEffect(() => {
+    const generateThumbnails = async () => {
+      setLoadingThumbnails(true);
+      const thumbs: string[] = [];
+      for (const pdf of pdfs) {
+        try {
+          const thumb = await generatePDFThumbnail(pdf.url, 100, 140);
+          thumbs.push(thumb);
+        } catch (error) {
+          console.error(`Failed to generate thumbnail for ${pdf.name}:`, error);
+          thumbs.push("");
+        }
+      }
+      setThumbnails(thumbs);
+      setLoadingThumbnails(false);
+    };
+
+    if (pdfs.length > 0) {
+      generateThumbnails();
+    }
+  }, [pdfs]);
 
   if (!pdfs || pdfs.length === 0) {
     return (
@@ -94,33 +120,76 @@ export function PDFViewer({ pdfs, onClose }: PDFViewerProps) {
 
         {/* PDF Navigation and Info */}
         {pdfs.length > 1 && (
-          <div className="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
-            <button
-              onClick={handlePrevious}
-              className="p-2 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
-              disabled={pdfs.length <= 1}
-              title="PDF anterior"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
-            </button>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+              <button
+                onClick={handlePrevious}
+                className="p-2 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
+                disabled={pdfs.length <= 1}
+                title="PDF anterior"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-700" />
+              </button>
 
-            <div className="flex-1 text-center">
-              <p className="text-sm font-medium text-gray-900">
-                {currentPDF.name}
-              </p>
-              <p className="text-xs text-gray-600">
-                {currentIndex + 1} de {pdfs.length}
-              </p>
+              <div className="flex-1 text-center">
+                <p className="text-sm font-medium text-gray-900">
+                  {currentPDF.name}
+                </p>
+                <p className="text-xs text-gray-600">
+                  {currentIndex + 1} de {pdfs.length}
+                </p>
+              </div>
+
+              <button
+                onClick={handleNext}
+                className="p-2 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
+                disabled={pdfs.length <= 1}
+                title="Próximo PDF"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
             </div>
 
-            <button
-              onClick={handleNext}
-              className="p-2 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
-              disabled={pdfs.length <= 1}
-              title="Próximo PDF"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
-            </button>
+            {/* Thumbnail Navigation */}
+            {!loadingThumbnails && thumbnails.length > 0 && (
+              <div className="bg-white rounded-lg p-3 border border-gray-200 overflow-x-auto">
+                <div className="flex gap-2 pb-2">
+                  {pdfs.map((pdf, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`flex-shrink-0 relative rounded-lg overflow-hidden border-2 transition ${
+                        idx === currentIndex
+                          ? "border-blue-600 shadow-lg"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                      title={pdf.name}
+                    >
+                      {thumbnails[idx] ? (
+                        <img
+                          src={thumbnails[idx]}
+                          alt={pdf.name}
+                          className="w-20 h-28 object-cover"
+                        />
+                      ) : (
+                        <div className="w-20 h-28 bg-gray-200 flex items-center justify-center">
+                          <span className="text-xs text-gray-500">PDF</span>
+                        </div>
+                      )}
+                      {idx === currentIndex && (
+                        <div className="absolute inset-0 bg-blue-600 bg-opacity-20 flex items-center justify-center">
+                          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -171,24 +240,38 @@ export function PDFViewer({ pdfs, onClose }: PDFViewerProps) {
                 Baixar PDF
               </Button>
 
-              {/* Additional PDFs Info */}
+              {/* Additional PDFs Info with Thumbnails */}
               {pdfs.length > 1 && (
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <p className="text-sm text-gray-600 mb-4">
                     Outros arquivos disponíveis:
                   </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
+                  <div className="flex flex-wrap gap-3 justify-center">
                     {pdfs.map((pdf, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentIndex(idx)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                        className={`flex flex-col items-center gap-2 p-2 rounded-lg transition ${
                           idx === currentIndex
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            ? "bg-blue-100 border-2 border-blue-600"
+                            : "bg-gray-100 border-2 border-gray-300 hover:border-gray-400"
                         }`}
+                        title={pdf.name}
                       >
-                        {pdf.name}
+                        {!loadingThumbnails && thumbnails[idx] ? (
+                          <img
+                            src={thumbnails[idx]}
+                            alt={pdf.name}
+                            className="w-16 h-24 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-24 bg-gray-300 rounded flex items-center justify-center">
+                            <span className="text-xs text-gray-600">PDF</span>
+                          </div>
+                        )}
+                        <span className="text-xs font-medium text-gray-700 text-center truncate max-w-16">
+                          {pdf.name}
+                        </span>
                       </button>
                     ))}
                   </div>
