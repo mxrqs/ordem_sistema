@@ -468,3 +468,16 @@
 - [x] Testar que alertas resolvidos não são contados
 - [x] Testar filtragem de ordens com pendências
 - [x] Todos os testes passando (4/4)
+
+
+## Alterações Solicitadas - Sprint 12 (Exportação CSV)
+
+### Alteração 1 - Botão de Exportação CSV em Gerenciar Ordens
+- [x] Criar função de exportação CSV para ordens filtradas
+- [x] Adicionar botão "Exportar para CSV" na página AdminOrders
+- [x] Botão deve respeitar filtros aplicados (status, data, pendências)
+- [x] Incluir colunas: ID, Tipo, Título, Status, Usuário, Email, Placa, Data de Criação
+- [x] Gerar arquivo com nome: ordens_[data].csv
+- [x] Testar exportação com diferentes filtros
+- [x] Testar em desktop e mobile
+- [x] Criar testes vitest para função de exportação CSV (9 testes passando)

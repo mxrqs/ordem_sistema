@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
+import { exportOrdersToCSV } from "@/lib/csvExport";
 import {
   Loader2,
   FileUp,
@@ -21,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  FileDown,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import { toast } from "sonner";
@@ -321,36 +323,58 @@ export default function AdminOrders() {
 
         {/* Content */}
         <div className="w-full px-4 sm:px-6 md:px-8 py-8">
-          {/* Tabs */}
-          <div className="flex gap-6 mb-8 border-b border-border">
-            <button
-              onClick={() => setActiveTab("OS")}
-              className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === "OS"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              Ordens de Serviço
-              <span className="ml-1 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">
-                {osCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab("OC")}
-              className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === "OC"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              Ordens de Compra
-              <span className="ml-1 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded-full">
-                {ocCount}
-              </span>
-            </button>
+          {/* Tabs and Export Button */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-border">
+            <div className="flex gap-6">
+              <button
+                onClick={() => setActiveTab("OS")}
+                className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+                  activeTab === "OS"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                Ordens de Serviço
+                <span className="ml-1 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {osCount}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("OC")}
+                className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+                  activeTab === "OC"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                Ordens de Compra
+                <span className="ml-1 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {ocCount}
+                </span>
+              </button>
+            </div>
+
+            {/* Export Button */}
+            {filteredOrders.length > 0 && (
+              <Button
+                onClick={() => {
+                  exportOrdersToCSV(
+                    filteredOrders.map((order) => ({
+                      ...order,
+                      createdAt: new Date(order.createdAt),
+                    }))
+                  );
+                  toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para CSV`);
+                }}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <FileDown className="w-4 h-4" />
+                <span className="hidden sm:inline">Exportar CSV</span>
+                <span className="sm:hidden">Exportar</span>
+              </Button>
+            )}
           </div>
 
           {/* Status Filters */}
