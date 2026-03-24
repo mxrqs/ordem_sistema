@@ -481,3 +481,12 @@
 - [x] Testar exportação com diferentes filtros
 - [x] Testar em desktop e mobile
 - [x] Criar testes vitest para função de exportação CSV (9 testes passando)
+
+
+### Alteração 2 - Botão de Exportação CSV em Minhas Solicitações
+- [x] Adicionar botão "Exportar CSV" na página MyOrders
+- [x] Botão deve respeitar filtros aplicados (status, tipo, pendências)
+- [x] Incluir mesmas colunas que AdminOrders
+- [x] Testar exportação com diferentes filtros
+- [x] Testar em desktop e mobile
+- [x] Todos os testes vitest passando (9/9)
