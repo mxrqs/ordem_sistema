@@ -1,6 +1,8 @@
 /**
- * Utility functions for exporting data to CSV format
+ * Utility functions for exporting data to CSV and Excel formats
  */
+
+import * as XLSX from 'xlsx';
 
 interface OrderData {
   id: number;
@@ -107,4 +109,69 @@ export function exportOrdersToCSV(orders: OrderData[], filenameSuffix: string = 
   const filename = `ordens_${timestamp}${filenameSuffix ? "_" + filenameSuffix : ""}.csv`;
 
   downloadCSV(csvContent, filename);
+}
+
+
+/**
+ * Convert array of orders to Excel format
+ */
+export function ordersToExcel(orders: OrderData[]): XLSX.WorkBook {
+  if (orders.length === 0) {
+    return XLSX.utils.book_new();
+  }
+
+  // Prepare data for Excel
+  const excelData = orders.map((order) => {
+    const createdAt = new Date(order.createdAt);
+    const formattedDate = createdAt.toLocaleDateString("pt-BR") + " " + createdAt.toLocaleTimeString("pt-BR");
+
+    return {
+      "ID": order.id,
+      "Tipo": order.type,
+      "Título": order.title || "",
+      "Status": formatStatus(order.status),
+      "Usuário": order.userName || "Desconhecido",
+      "Email": order.userEmail || "",
+      "Placa": order.placa || "",
+      "Data de Criação": formattedDate,
+    };
+  });
+
+  // Create workbook and worksheet
+  const ws = XLSX.utils.json_to_sheet(excelData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ordens");
+
+  // Auto-fit column widths
+  const colWidths = [
+    { wch: 8 },   // ID
+    { wch: 6 },   // Tipo
+    { wch: 25 },  // Título
+    { wch: 15 },  // Status
+    { wch: 20 },  // Usuário
+    { wch: 25 },  // Email
+    { wch: 12 },  // Placa
+    { wch: 20 },  // Data de Criação
+  ];
+  ws["!cols"] = colWidths;
+
+  return wb;
+}
+
+/**
+ * Download Excel file
+ */
+export function downloadExcel(workbook: XLSX.WorkBook, filename: string): void {
+  XLSX.writeFile(workbook, filename);
+}
+
+/**
+ * Export orders to Excel file with automatic download
+ */
+export function exportOrdersToExcel(orders: OrderData[], filenameSuffix: string = ""): void {
+  const workbook = ordersToExcel(orders);
+  const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+  const filename = `ordens_${timestamp}${filenameSuffix ? "_" + filenameSuffix : ""}.xlsx`;
+
+  downloadExcel(workbook, filename);
 }

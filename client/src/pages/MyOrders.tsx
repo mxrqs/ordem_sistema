@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { exportOrdersToCSV } from "@/lib/csvExport";
+import { exportOrdersToCSV, exportOrdersToExcel } from "@/lib/csvExport";
 import {
   Loader2,
   FileText,
@@ -343,28 +343,50 @@ export default function MyOrders() {
 
             {/* Export Button */}
             {filteredOrders.length > 0 && (
-              <Button
-                onClick={() => {
-                  exportOrdersToCSV(
-                    filteredOrders.map((order) => ({
-                      id: order.id,
-                      type: order.type,
-                      title: order.title,
-                      status: order.status,
-                      userName: user?.name || null,
-                      userEmail: user?.email || null,
-                      placa: order.placa,
-                      createdAt: new Date(order.createdAt),
-                    }))
-                  );
-                  toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para CSV`);
-                }}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <FileDown className="w-4 h-4" />
-                <span className="hidden sm:inline">Exportar CSV</span>
-                <span className="sm:hidden">Exportar</span>
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    exportOrdersToCSV(
+                      filteredOrders.map((order) => ({
+                        id: order.id,
+                        type: order.type,
+                        title: order.title,
+                        status: order.status,
+                        userName: user?.name || null,
+                        userEmail: user?.email || null,
+                        placa: order.placa,
+                        createdAt: new Date(order.createdAt),
+                      }))
+                    );
+                    toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para CSV`);
+                  }}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <FileDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">CSV</span>
+                </Button>
+                <Button
+                  onClick={() => {
+                    exportOrdersToExcel(
+                      filteredOrders.map((order) => ({
+                        id: order.id,
+                        type: order.type,
+                        title: order.title,
+                        status: order.status,
+                        userName: user?.name || null,
+                        userEmail: user?.email || null,
+                        placa: order.placa,
+                        createdAt: new Date(order.createdAt),
+                      }))
+                    );
+                    toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para Excel`);
+                  }}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FileDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">Excel</span>
+                </Button>
+              </div>
             )}
           </div>
 

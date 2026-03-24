@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
-import { exportOrdersToCSV } from "@/lib/csvExport";
+import { exportOrdersToCSV, exportOrdersToExcel } from "@/lib/csvExport";
 import {
   Loader2,
   FileUp,
@@ -356,24 +356,40 @@ export default function AdminOrders() {
               </button>
             </div>
 
-            {/* Export Button */}
+            {/* Export Buttons */}
             {filteredOrders.length > 0 && (
-              <Button
-                onClick={() => {
-                  exportOrdersToCSV(
-                    filteredOrders.map((order) => ({
-                      ...order,
-                      createdAt: new Date(order.createdAt),
-                    }))
-                  );
-                  toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para CSV`);
-                }}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <FileDown className="w-4 h-4" />
-                <span className="hidden sm:inline">Exportar CSV</span>
-                <span className="sm:hidden">Exportar</span>
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    exportOrdersToCSV(
+                      filteredOrders.map((order) => ({
+                        ...order,
+                        createdAt: new Date(order.createdAt),
+                      }))
+                    );
+                    toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para CSV`);
+                  }}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <FileDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">CSV</span>
+                </Button>
+                <Button
+                  onClick={() => {
+                    exportOrdersToExcel(
+                      filteredOrders.map((order) => ({
+                        ...order,
+                        createdAt: new Date(order.createdAt),
+                      }))
+                    );
+                    toast.success(`${filteredOrders.length} ordem(ns) exportada(s) para Excel`);
+                  }}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FileDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">Excel</span>
+                </Button>
+              </div>
             )}
           </div>
 

@@ -490,3 +490,16 @@
 - [x] Testar exportação com diferentes filtros
 - [x] Testar em desktop e mobile
 - [x] Todos os testes vitest passando (9/9)
+
+
+### Alteração 3 - Exportação em Excel (.xlsx) para Minhas Solicitações e Gerenciar Solicitações
+- [x] Instalar dependência xlsx (ou alternativa)
+- [x] Criar função de exportação Excel em csvExport.ts
+- [x] Adicionar botão "Exportar Excel" em MyOrders
+- [x] Adicionar botão "Exportar Excel" em AdminOrders
+- [x] Botão deve respeitar filtros aplicados
+- [x] Formatar planilha com cabeçalhos destacados e colunas ajustadas
+- [x] Testar exportação Excel com diferentes filtros
+- [x] Testar em desktop e mobile
+- [x] Criar testes vitest para função de exportação Excel (8 testes passando)
+- [x] Total de 17 testes passando (9 CSV + 8 Excel)
