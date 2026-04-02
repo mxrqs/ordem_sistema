@@ -503,3 +503,10 @@
 - [x] Testar em desktop e mobile
 - [x] Criar testes vitest para função de exportação Excel (8 testes passando)
 - [x] Total de 17 testes passando (9 CSV + 8 Excel)
+
+
+## Bug Fix - Erro de JSON em /my-orders
+- [x] Verificar logs do servidor para identificar a causa
+- [x] Analisar query myOrders no backend
+- [x] Corrigir erro de JSON inválido (import order em routers.ts)
+- [x] Testar funcionalidade em /my-orders
